@@ -1,0 +1,156 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 327e595fdb961c5418e231c6ba061b14, type: 3}
+  m_Name: GameDataContainer
+  m_EditorClassIdentifier: 
+  EnemyStats:
+  - id: 1001
+    name: Rat
+    hp: 10
+    atk: 10
+    speed: 5
+    attackType: 0
+  - id: 1002
+    name: Spider
+    hp: 30
+    atk: 15
+    speed: 6
+    attackType: 0
+  - id: 1003
+    name: Ghost
+    hp: 75
+    atk: 20
+    speed: 7
+    attackType: 0
+  - id: 1004
+    name: Warlock
+    hp: 50
+    atk: 20
+    speed: 5
+    attackType: 1
+  - id: 1005
+    name: Cyclops
+    hp: 300
+    atk: 30
+    speed: 5
+    attackType: 2
+  PlayerStats:
+  - id: 3001
+    name: warrior
+    baseHp: 100
+    baseAtk: 10
+    baseSpeed: 7
+    baseCooldown: 0
+  - id: 3002
+    name: Mage
+    baseHp: 75
+    baseAtk: 15
+    baseSpeed: 9
+    baseCooldown: 0
+  SkillData:
+  - id: 4001
+    name: GreatSword
+    job: 0
+    enhanceType: 0
+    baseAtk: 15
+    cooldown: 4
+    maxLevel: 1
+    atkPerLevel: 5
+    enhancePerLevel: 2
+  - id: 4002
+    name: Dagger
+    job: 0
+    enhanceType: 1
+    baseAtk: 5
+    cooldown: 2
+    maxLevel: 1
+    atkPerLevel: 3
+    enhancePerLevel: 1
+  - id: 4003
+    name: BattleAxe
+    job: 0
+    enhanceType: 1
+    baseAtk: 10
+    cooldown: 8
+    maxLevel: 1
+    atkPerLevel: 5
+    enhancePerLevel: 1
+  - id: 4004
+    name: Hammer
+    job: 0
+    enhanceType: 0
+    baseAtk: 30
+    cooldown: 8
+    maxLevel: 1
+    atkPerLevel: 10
+    enhancePerLevel: 2
+  - id: 4005
+    name: ReleaseMagic
+    job: 1
+    enhanceType: 0
+    baseAtk: 15
+    cooldown: 4
+    maxLevel: 1
+    atkPerLevel: 5
+    enhancePerLevel: 2
+  - id: 4006
+    name: FireBall
+    job: 1
+    enhanceType: 0
+    baseAtk: 30
+    cooldown: 8
+    maxLevel: 1
+    atkPerLevel: 10
+    enhancePerLevel: 2
+  - id: 4007
+    name: LightningChain
+    job: 1
+    enhanceType: 1
+    baseAtk: 15
+    cooldown: 4
+    maxLevel: 1
+    atkPerLevel: 5
+    enhancePerLevel: 1
+  - id: 4008
+    name: IceMagic
+    job: 1
+    enhanceType: 1
+    baseAtk: 5
+    cooldown: 0
+    maxLevel: 1
+    atkPerLevel: 3
+    enhancePerLevel: 1
+  StatLevelUps:
+  - id: 5001
+    name: HP
+    increaseStatPer: 10
+    minLevel: 1
+    maxLevel: 5
+    statType: 0
+  - id: 5002
+    name: "\uACF5\uACA9\uB825"
+    increaseStatPer: 10
+    minLevel: 1
+    maxLevel: 5
+    statType: 1
+  - id: 5003
+    name: "\uC774\uC18D"
+    increaseStatPer: 5
+    minLevel: 1
+    maxLevel: 5
+    statType: 2
+  - id: 5004
+    name: "\uCFE8\uD0C0\uC784"
+    increaseStatPer: 10
+    minLevel: 1
+    maxLevel: 5
+    statType: 3

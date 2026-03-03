@@ -1,4 +1,0 @@
-int	string	float	float	float	float
-ID	직업	기본체력	기본공격력	기본이동속도	기본쿨감
-3001	warrior	100	10	5	0
-3002	Mage	75	15	6	0

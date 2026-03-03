@@ -78,6 +78,7 @@ public struct StatLevelUp
     public int id;
     public string name;
     public float increaseStatPer;
+    public int minLevel;
     public int maxLevel;
     public StatType statType;
 }

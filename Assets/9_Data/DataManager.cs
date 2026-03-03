@@ -16,6 +16,7 @@ public class DataManager
 
         Debug.Log("데이터 로드 완료");
     }
+    public PlayerStat GetPlayerStat(int id)=>_container.PlayerStats.Find(x=>x.id==id);
     public EnemyStat GetEnemyStat(int id)=>_container.EnemyStats.Find(x=>x.id==id);
     public List<SkillData> GetSkillData() => _container.SkillData;
 }

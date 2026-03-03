@@ -142,8 +142,9 @@ public class DataImporter : EditorWindow
                     id = int.Parse(cols[0]),
                     name = cols[1],
                     increaseStatPer = float.Parse(cols[2]),
-                    maxLevel = int.Parse(cols[3]),
-                    statType = (StatType)Enum.Parse(typeof(StatType), cols[4], true),
+                    minLevel = int.Parse(cols[3]),
+                    maxLevel = int.Parse(cols[4]),
+                    statType = (StatType)Enum.Parse(typeof(StatType), cols[5], true),
                 };
                 targetContainer.StatLevelUps.Add(levelUp);
             }
