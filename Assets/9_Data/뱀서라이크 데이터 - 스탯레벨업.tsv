@@ -1,0 +1,6 @@
+int	string	float	int	int	enum
+ID	스킬이름	레벨당 증가량(%)	최소레벨	최대레벨	스탯타입
+5001	HP	10	1	5	HP
+5002	공격력	10	1	5	ATK
+5003	이속	5	1	5	Speed
+5004	쿨타임	10	1	5	Cooldown

@@ -1,0 +1,7 @@
+int	string	float	float	float	enum
+ID	이름	체력	공격력	이동속도	공격타입
+1001	Rat	10	10	5	Melee
+1002	Spider	30	15	6	Melee
+1003	Ghost	75	20	7	Melee
+1004	Warlock	50	20	5	Ranged
+1005	Cyclops	300	30	5	Boss
