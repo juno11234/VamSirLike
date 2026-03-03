@@ -8,6 +8,7 @@ public class DataManager
 {
     private GameDataContainer _container;
 
+    // 비동기로 데이터 로드
     public async UniTask InitializeAsync(CancellationToken ct = default)
     {
         _container = await Addressables.LoadAssetAsync<GameDataContainer>("GameData")

@@ -1,26 +1,30 @@
 using System;
 using UnityEngine;
 
-// 1. 공통 Enum 정의
-public enum AttackType
+
+// 적 - 공격 타입
+public enum AttackType 
 {
     Melee,
     Ranged,
     Boss
 }
 
-public enum EnhanceType // 스킬 강화 타입
+// 플레이어 - 스킬 강화 타입
+public enum EnhanceType
 {
     Range,
     Projectile
 } 
 
+// 플레이어 - 직업 종류
 public enum JobType 
 {
     Warrior,
     Mage
 }
 
+// 플레이어 - 스탯 종류
 public enum StatType
 {
     HP,
