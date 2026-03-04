@@ -4,7 +4,7 @@ using UnityEditor;
 
 public class DataImporter : EditorWindow
 {
- // 연결할 에셋들
+    // 연결할 에셋들
     private GameDataContainer targetContainer;
     private TextAsset enemyTSV;
     private TextAsset playerTSV;
@@ -119,7 +119,7 @@ public class DataImporter : EditorWindow
                     baseAtk = float.Parse(cols[4]),
                     cooldown = float.Parse(cols[5]),
                     maxLevel = int.Parse(cols[6]),
-                    atkPerLevel = float.Parse(cols[8]), // 컬럼 순서에 맞게 인덱스 조정 (7번은 최대레벨, 8번은 레벨업당 공격력)
+                    atkPerLevel = float.Parse(cols[8]), 
                     enhancePerLevel = float.Parse(cols[9])
                 };
                 targetContainer.SkillData.Add(skill);
@@ -151,7 +151,7 @@ public class DataImporter : EditorWindow
             Debug.Log($"레벨업 데이터 {targetContainer.StatLevelUps.Count}개 임포트 완료!");
         }
 
-        // 에디터에게 "데이터가 변경되었으니 저장해라"라고 알려주는 함수
+        
         EditorUtility.SetDirty(targetContainer);
         AssetDatabase.SaveAssets();
         

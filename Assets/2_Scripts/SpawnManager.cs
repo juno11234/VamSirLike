@@ -6,11 +6,12 @@ using System.Threading;
 
 public class SpawnManager : MonoBehaviour
 {
+    // todo: 지금은 한종류지만 다양한 몬스터 종류 추가
     [Header("Spawn Settings")] [SerializeField]
-    private string enemyPrefabAddress = "Enemy_Rat"; // 어드레서블 키
+    private string enemyPrefabAddress = "Enemy_Rat"; 
 
-    [SerializeField] private float spawnRadius = 15f; // 플레이어로부터 얼마나 멀리서 소환할지
-    [SerializeField] private float spawnInterval = 0.5f; // 몇 초마다 소환할지
+    [SerializeField] private float spawnRadius = 15f;
+    [SerializeField] private float spawnInterval = 0.5f;
 
     private EnemyStat _enemyStat;
     private Transform _playerTransform;
@@ -18,7 +19,6 @@ public class SpawnManager : MonoBehaviour
     private ObjectPool<GameObject> _enemyPool;
     private CancellationTokenSource _cts;
 
-    // VContainer나 외부에서 플레이어 정보를 주입받는다고 가정
     public void Init(Transform playerTransform, EnemyStat enemyStat)
     {
         _playerTransform = playerTransform;
