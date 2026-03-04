@@ -26,6 +26,7 @@ public class DataManager
         _container = await Addressables.LoadAssetAsync<GameDataContainer>("GameData")
             .ToUniTask(cancellationToken: ct);
 
+        Initialize();
         Debug.Log("데이터 로드 완료");
     }
     public PlayerStat GetPlayerStat(int id)
@@ -37,6 +38,13 @@ public class DataManager
         Debug.LogError($"ID {id}에 해당하는 플레이어 스탯이 없습니다!");
         return null;
     }
-    public EnemyStat GetEnemyStat(int id)=>_container.EnemyStats.Find(x=>x.id==id);
+    public EnemyStat GetEnemyStat(int id)
+    {
+        if(_enemyStatDict.TryGetValue(id, out var stat))
+            return stat;
+        
+        Debug.LogError($"ID {id}에 해당하는 몬스터 스탯이 없습니다!");
+        return null;
+    }
     public List<SkillData> GetSkillData() => _container.SkillData;
 }
