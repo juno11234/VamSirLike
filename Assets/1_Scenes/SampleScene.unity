@@ -153,6 +153,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   playerController: {fileID: 3320818351365062613}
+  spawnManager: {fileID: 1392157687}
 --- !u!4 &247497266
 Transform:
   m_ObjectHideFlags: 0
@@ -668,7 +669,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8662bc696714ef4ab1c124d1bbd0d24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  testPlayerTransform: {fileID: 4361326507047996454}
   enemyPrefabAddress: Enemy_Rat
   spawnRadius: 15
   spawnInterval: 0.5

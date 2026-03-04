@@ -6,11 +6,15 @@ using VContainer.Unity;
 public class GameLifetimeScope : LifetimeScope
 {
     [SerializeField] private PlayerController playerController;
+    [SerializeField] private SpawnManager spawnManager; 
 
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.Register<DataManager>(Lifetime.Singleton);
-        builder.Register<SpawnManager>(Lifetime.Singleton);
+        // DataManager가 순수 C# 클래스(MonoBehaviour 상속 X)라면 이건 정답입니다!
+        builder.Register<DataManager>(Lifetime.Singleton); 
+        
+        // 2. Register 대신 RegisterComponent로 변경!
+        builder.RegisterComponent(spawnManager); 
         builder.RegisterComponent(playerController);
         builder.RegisterEntryPoint<GameInitializer>();
     }
