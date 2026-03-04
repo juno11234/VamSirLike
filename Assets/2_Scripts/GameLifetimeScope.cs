@@ -10,6 +10,7 @@ public class GameLifetimeScope : LifetimeScope
     protected override void Configure(IContainerBuilder builder)
     {
         builder.Register<DataManager>(Lifetime.Singleton);
+        builder.Register<SpawnManager>(Lifetime.Singleton);
         builder.RegisterComponent(playerController);
         builder.RegisterEntryPoint<GameInitializer>();
     }
@@ -18,11 +19,13 @@ public class GameLifetimeScope : LifetimeScope
 public class GameInitializer : IStartable
 {
     private readonly DataManager _dataManager;
+    private readonly SpawnManager _spawnManager;
     private readonly PlayerController _playerController;
 
-    public GameInitializer(DataManager dataManager, PlayerController playerController)
+    public GameInitializer(DataManager dataManager, SpawnManager spawnManager, PlayerController playerController)
     {
         _dataManager = dataManager;
+        _spawnManager = spawnManager;
         _playerController = playerController;
     }
 
@@ -34,6 +37,8 @@ public class GameInitializer : IStartable
         // 이후 몹 스포너 활성화나 플레이어 생성 로직 진행
         PlayerStat warriorStat = _dataManager.GetPlayerStat(3001);
         _playerController.Initialize(warriorStat);
-        
+
+        EnemyStat enemyStat = _dataManager.GetEnemyStat(1001);
+        _spawnManager.Init(_playerController.transform, enemyStat);
     }
 }
