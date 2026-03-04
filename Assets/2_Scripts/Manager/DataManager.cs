@@ -1,19 +1,22 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-public class DataManager
+// IDisposable을 상속받아 VContainer가 알아서 메모리를 정리하도록 돕습니다.
+public class DataManager : IDisposable
 {
     private GameDataContainer _container;
-    private Dictionary<int, PlayerStat> _playerStatDict = new Dictionary<int, PlayerStat>();
-    private Dictionary<int, EnemyStat> _enemyStatDict = new Dictionary<int, EnemyStat>();
+    private readonly Dictionary<int, PlayerStat> _playerStatDict = new Dictionary<int, PlayerStat>();
+    private readonly Dictionary<int, EnemyStat> _enemyStatDict = new Dictionary<int, EnemyStat>();
 
 
-    
     public async UniTask InitializeAsync(CancellationToken ct = default)
     {
+        if (_container != null) return;
+
         _container = await Addressables.LoadAssetAsync<GameDataContainer>("GameData")
             .ToUniTask(cancellationToken: ct);
 
@@ -23,6 +26,9 @@ public class DataManager
 
     private void Initialize()
     {
+        _playerStatDict.Clear();
+        _enemyStatDict.Clear();
+
         // 리스트를 딕셔너리로
         foreach (PlayerStat stat in _container.PlayerStats)
             _playerStatDict[stat.id] = stat;
@@ -50,4 +56,18 @@ public class DataManager
     }
 
     public List<SkillData> GetSkillData() => _container.SkillData;
+
+    // VContainer의 생명주기가 끝날 때(게임 종료, 씬 전환 등) 자동으로 호출됩니다.
+    public void Dispose()
+    {
+        if (_container != null)
+        {
+            Addressables.Release(_container); // Addressables 메모리 해제
+            _container = null;
+        }
+
+        _playerStatDict.Clear();
+        _enemyStatDict.Clear();
+        Debug.Log("DataManager 메모리 해제 완료");
+    }
 }

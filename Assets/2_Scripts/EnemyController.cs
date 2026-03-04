@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -10,12 +11,14 @@ public class EnemyController : MonoBehaviour
 
     private float _currentHp;
 
+    private Action<GameObject> _onDeathCallback;
+
     // 스폰 매니저가 나를 소환할 때, 필요한 정보(타겟, 스탯, 풀)를 꽂아줍니다 (의존성 주입)
-    public void Setup(Transform target, EnemyStat stat, IObjectPool<GameObject> pool)
+    public void Setup(Transform target, EnemyStat stat, Action<GameObject> onDeathCallback)
     {
         _targetPlayer = target;
         _stat = stat;
-        _managedPool = pool;
+        _onDeathCallback = onDeathCallback;
 
         _currentHp = _stat.hp;
     }
@@ -39,9 +42,6 @@ public class EnemyController : MonoBehaviour
 
     private void Die()
     {
-        if (_managedPool != null)
-        {
-            _managedPool.Release(gameObject);
-        }
+        _onDeathCallback?.Invoke(this.gameObject);
     }
 }
