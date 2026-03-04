@@ -1,10 +1,10 @@
 # 유니티 임시 파일 및 빌드 결과물 제외
 /[Ll]ibrary/
 /[Tt]emp/
-/[Obj]bj/
-/[Build]uild/
-/[Logs]ogs/
-/[MemoryCaptures]emoryCaptures/
+/[Oo]bj/
+/[Bb]uild/
+/[Ll]ogs/
+/[Mm]emoryCaptures/
 
 # Visual Studio/Rider 관련 파일 제외
 .vs/
