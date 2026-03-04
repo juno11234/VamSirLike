@@ -27,7 +27,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          targetPlatform: StandaloneAndroid
+          targetPlatform: Android
           buildName: VamSir_TestBuild # 완성될 APK 파일의 이름
           allowDirtyBuild: true
 
