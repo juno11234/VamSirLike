@@ -1,0 +1,24 @@
+name: Acquire activation file
+on:
+  workflow_dispatch: {} # GitHub 웹사이트에서 수동으로 실행할 수 있게 해주는 버튼
+
+jobs:
+  activation:
+    name: Request manual activation file 🔑
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 깃허브 저장소의 코드를 서버로 가져옵니다.
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. GameCI를 이용해 라이선스 요청 파일(.alf)을 생성합니다.
+      - name: Request manual activation file
+        id: getManualLicenseFile
+        uses: game-ci/unity-request-activation-file@v3
+        
+      # 3. 생성된 .alf 파일을 우리가 다운로드할 수 있게 빼줍니다.
+      - name: Expose as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unity_Activation_File
+          path: ${{ steps.getManualLicenseFile.outputs.filePath }}
