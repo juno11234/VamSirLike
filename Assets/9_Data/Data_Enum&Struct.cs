@@ -34,7 +34,7 @@ public enum StatType
 }
 // 1001~ 적 스탯 구조체
 [Serializable]
-public struct EnemyStat
+public class EnemyStat
 {
     public int id;
     public string name;
@@ -46,7 +46,7 @@ public struct EnemyStat
 
 // 3001~ 플레이어 스탯 구조체
 [Serializable]
-public struct PlayerStat
+public class PlayerStat
 {
     public int id;
     public string name;
@@ -58,7 +58,7 @@ public struct PlayerStat
 
 // 4001~ 스킬 데이터 구조체
 [Serializable]
-public struct SkillData
+public class SkillData
 {
     public int id;
     public string name;
@@ -73,7 +73,7 @@ public struct SkillData
 
 // 5001~ 스탯 레벨업 구조체
 [Serializable]
-public struct StatLevelUp
+public class StatLevelUp
 {
     public int id;
     public string name;
