@@ -2,8 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IFighter
 {
+    public Collider2D MainCollider => _collider;
+    private Collider2D _collider;
     private PlayerActions _playerInput;
     private PlayerActions.PlayerMovementActions _player;
     private Vector2 _moveInput;
@@ -16,6 +18,7 @@ public class PlayerController : MonoBehaviour
 
     public void Initialize(PlayerStat stat)
     {
+        _collider = GetComponent<Collider2D>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _moveSpeed = stat.baseSpeed;
         _isInitialized = true;
@@ -48,5 +51,14 @@ public class PlayerController : MonoBehaviour
         nextPosition.x = Mathf.Clamp(nextPosition.x, minBounds.x, maxBounds.x);
         nextPosition.y = Mathf.Clamp(nextPosition.y, minBounds.y, maxBounds.y);
         transform.position = nextPosition;
+    }
+
+
+    public void TakeDamage(CombatEvent combatEvent)
+    {
+    }
+
+    public void Heal(HealthEvent healthEvent)
+    {
     }
 }

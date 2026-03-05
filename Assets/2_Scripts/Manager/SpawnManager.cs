@@ -20,15 +20,16 @@ public class SpawnManager : MonoBehaviour
     private GameObject _enemyPrefab;
     private ObjectPool<GameObject> _enemyPool;
     private CancellationTokenSource _cts;
-
+    private CombatSystem _combatSystem;
     private Action<GameObject> _releaseEnemyAction;
 
     // 1. Init을 UniTask로 변경하여 로딩 완료를 외부에서 대기할 수 있게 합니다.
-    public async UniTask InitAsync(Transform playerTransform, EnemyStat enemyStat, CancellationToken ct = default)
+    public async UniTask InitAsync(Transform playerTransform, EnemyStat enemyStat, CombatSystem combatSystem,
+        CancellationToken ct = default)
     {
         _playerTransform = playerTransform;
         _enemyStat = enemyStat;
-
+        _combatSystem = combatSystem;
 
         // 외부 토큰과 연결하여 씬 전환 시 안전하게 같이 취소되도록 합니다.
         _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -82,12 +83,13 @@ public class SpawnManager : MonoBehaviour
 
         if (enemy.TryGetComponent(out EnemyController controller))
         {
+            _combatSystem.RegisterMonster(controller);
             // 2. OOP 설계: 풀 전체를 넘기지 않고, '풀로 되돌아가는 행동(Action)'만 넘겨줍니다.
             controller.Setup(_playerTransform, _enemyStat, _releaseEnemyAction);
         }
     }
 
-   // 풀에 반납하는 전용 메서드
+    // 풀에 반납하는 전용 메서드
     private void ReleaseEnemyToPool(GameObject enemy)
     {
         _enemyPool.Release(enemy);

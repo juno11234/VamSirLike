@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using VContainer;
 
 public class CircleAttack : MonoBehaviour
 {
@@ -13,8 +14,18 @@ public class CircleAttack : MonoBehaviour
     [SerializeField] private ParticleSystem attackEffect;
     private float _timer;
 
+    private CombatSystem _combatSystem;
+
     // 가비지(GC)를 절대 생성하지 않는 고정 배열 (최대 50마리 동시 타격)
-    private Collider2D[] _results = new Collider2D[50];
+    private Collider2D[] _results = new Collider2D[100];
+
+
+    // VContainer가 시작할 때 이 함수를 부르면서 CombatSystem을 던져줍니다.
+    [Inject]
+    public void Construct(CombatSystem combatSystem)
+    {
+        _combatSystem = combatSystem;
+    }
 
     private void Start()
     {
@@ -50,16 +61,13 @@ public class CircleAttack : MonoBehaviour
         // 3. 스캔된 몬스터 수(hitCount)만큼 반복문을 돌며 데미지를 입힙니다.
         for (int i = 0; i < hitCount; i++)
         {
-            if (_results[i].TryGetComponent(out EnemyController enemy))
+            var evt = new CombatEvent()
             {
-                enemy.TakeDamage(damage);
-            }
+                Receiver = _combatSystem.GetMonster(_results[i]),
+                Damage = damage,
+            };
+            _combatSystem.AddInGameEvent(evt);
         }
     }
-
-    private void OnDrawGizmosSelected()
-    {
-        Gizmos.color = new Color(0, 1, 0, 0.3f);
-        Gizmos.DrawSphere(transform.position, radius);
-    }
+    
 }

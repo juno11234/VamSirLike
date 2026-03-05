@@ -16,20 +16,19 @@ public abstract class InGameEvent
 
 public class CombatEvent : InGameEvent
 {
-    public int Damage { get; set; }
-    public Collider Collider { get; set; }
-
+    public float Damage { get; set; }
     public override EventType Type => EventType.Combat;
 }
 
 public class HealthEvent : InGameEvent
 {
-    public int HealAmount { get; set; }
+    public float HealAmount { get; set; }
     public override EventType Type => EventType.Heal;
 }
 
 public interface IFighter
 {
+    public Collider2D MainCollider { get; }
     public void TakeDamage(CombatEvent combatEvent);
     public void Heal(HealthEvent healthEvent);
 }

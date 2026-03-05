@@ -13,7 +13,7 @@ public class CombatSystem : ITickable
         public Action<HealthEvent> OnHealEvent;
     }
 
-    private Dictionary<Collider, IFighter> _monstersDict = new Dictionary<Collider, IFighter>();
+    private Dictionary<Collider2D, IFighter> _monstersDict = new Dictionary<Collider2D, IFighter>();
     private Queue<InGameEvent> _eventQueue = new Queue<InGameEvent>();
     public readonly Callback EventCallback = new Callback();
 
@@ -38,5 +38,32 @@ public class CombatSystem : ITickable
 
             processCount++;
         }
+    }
+    
+    public void AddInGameEvent(InGameEvent e)
+    {
+        _eventQueue.Enqueue(e);
+    }
+
+    public void RegisterMonster(IFighter monster)
+    {
+        if (_monstersDict.TryAdd(monster.MainCollider, monster) == false)
+        {
+            Debug.LogWarning("몬스터가 이미 존재 덮어씀");
+            _monstersDict[monster.MainCollider] = monster;
+        }
+    }
+
+    public void RemoveMonster(IFighter monster)
+    {
+        _monstersDict.Remove(monster.MainCollider);
+    }
+    public IFighter GetMonster(Collider2D coll)
+    {
+        if (_monstersDict.TryGetValue(coll, out var monster))
+        {
+            return monster;
+        }
+        return null;
     }
 }
