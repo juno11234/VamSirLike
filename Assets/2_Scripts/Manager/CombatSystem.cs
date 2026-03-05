@@ -3,40 +3,41 @@ using System.Collections.Generic;
 using UnityEngine;
 using VContainer.Unity;
 
-public class CombatSystem : ITickable
+public class CombatSystem : ITickable,IDisposable
 {
-    private const int Max_Evenet_Count = 10;
+    private const int Max_Event_Count = 1000;
 
     public class Callback
     {
-        public Action<CombatEvent> OnCombatEvent;
-        public Action<HealthEvent> OnHealEvent;
+        public Action<InGameEvent> OnCombatEvent;
+        public Action<InGameEvent> OnHealEvent;
     }
 
-    private Dictionary<Collider2D, IFighter> _monstersDict = new Dictionary<Collider2D, IFighter>();
-    private Queue<InGameEvent> _eventQueue = new Queue<InGameEvent>();
+    private readonly Dictionary<Collider2D, IFighter> _monstersDict = new Dictionary<Collider2D, IFighter>();
+    private readonly Queue<InGameEvent> _eventQueue = new Queue<InGameEvent>();
     public readonly Callback EventCallback = new Callback();
 
     public void Tick()
     {
-        int processCount = 0;
-
-        while (_eventQueue.Count > 0 && processCount < Max_Evenet_Count)
+        // 큐에 있는 모든 이벤트를 해당 프레임에 지연 없이 즉시 처리합니다.
+        while (_eventQueue.Count > 0)
         {
-            var inGameEvent = _eventQueue.Dequeue();
+            // struct이므로 Dequeue할 때도 GC가 발생하지 않습니다.
+            InGameEvent inGameEvent = _eventQueue.Dequeue();
+
             switch (inGameEvent.Type)
             {
                 case InGameEvent.EventType.Combat:
-                    var combatEvent = inGameEvent as CombatEvent;
-                    inGameEvent.Receiver.TakeDamage(combatEvent);
+                    inGameEvent.Receiver.TakeDamage(inGameEvent);
+                    // 콜백 발생! (UI 업데이트나 이펙트 재생에 활용)
+                    EventCallback.OnCombatEvent?.Invoke(inGameEvent);
                     break;
+                    
                 case InGameEvent.EventType.Heal:
-                    var healEvent = inGameEvent as HealthEvent;
-                    inGameEvent.Receiver.Heal(healEvent);
+                    inGameEvent.Receiver.Heal(inGameEvent);
+                    EventCallback.OnHealEvent?.Invoke(inGameEvent);
                     break;
             }
-
-            processCount++;
         }
     }
     
@@ -65,5 +66,10 @@ public class CombatSystem : ITickable
             return monster;
         }
         return null;
+    }
+    public void Dispose()
+    {
+        _monstersDict.Clear();
+        _eventQueue.Clear();
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class InGameEvent
+public struct InGameEvent
 {
     public enum EventType
     {
@@ -9,26 +9,17 @@ public abstract class InGameEvent
         Heal
     }
 
-    public IFighter Sender { get; set; }
-    public IFighter Receiver { get; set; }
-    public abstract EventType Type { get; }
-}
-
-public class CombatEvent : InGameEvent
-{
-    public float Damage { get; set; }
-    public override EventType Type => EventType.Combat;
-}
-
-public class HealthEvent : InGameEvent
-{
-    public float HealAmount { get; set; }
-    public override EventType Type => EventType.Heal;
+    public EventType Type;
+    public IFighter Sender;
+    public IFighter Receiver;
+    
+    // 데미지나 회복량 등 수치를 담는 범용 변수
+    public float Amount; 
 }
 
 public interface IFighter
 {
     public Collider2D MainCollider { get; }
-    public void TakeDamage(CombatEvent combatEvent);
-    public void Heal(HealthEvent healthEvent);
+    public void TakeDamage(InGameEvent combatEvent);
+    public void Heal(InGameEvent healthEvent);
 }

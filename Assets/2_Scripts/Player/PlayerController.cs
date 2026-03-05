@@ -54,11 +54,11 @@ public class PlayerController : MonoBehaviour, IFighter
     }
 
 
-    public void TakeDamage(CombatEvent combatEvent)
+    public void TakeDamage(InGameEvent combatEvent)
     {
     }
 
-    public void Heal(HealthEvent healthEvent)
+    public void Heal(InGameEvent healthEvent)
     {
     }
 }

@@ -18,10 +18,12 @@ public class SpawnManager : MonoBehaviour
     private EnemyStat _enemyStat;
     private Transform _playerTransform;
     private GameObject _enemyPrefab;
-    private ObjectPool<GameObject> _enemyPool;
+
+    private ObjectPool<EnemyController> _enemyPool;
     private CancellationTokenSource _cts;
     private CombatSystem _combatSystem;
-    private Action<GameObject> _releaseEnemyAction;
+
+    private Action<EnemyController> _releaseEnemyAction;
 
     // 1. Init을 UniTask로 변경하여 로딩 완료를 외부에서 대기할 수 있게 합니다.
     public async UniTask InitAsync(Transform playerTransform, EnemyStat enemyStat, CombatSystem combatSystem,
@@ -40,11 +42,20 @@ public class SpawnManager : MonoBehaviour
             _enemyPrefab = await Addressables.LoadAssetAsync<GameObject>(enemyPrefabAddress)
                 .ToUniTask(cancellationToken: _cts.Token);
 
-            _enemyPool = new ObjectPool<GameObject>(
-                createFunc: () => Instantiate(_enemyPrefab, transform),
-                actionOnGet: (enemy) => enemy.SetActive(true),
-                actionOnRelease: (enemy) => enemy.SetActive(false),
-                actionOnDestroy: (enemy) => Destroy(enemy),
+            _enemyPool = new ObjectPool<EnemyController>(
+                createFunc: () =>
+                {
+                    EnemyController controller = Instantiate(_enemyPrefab, transform).GetComponent<EnemyController>();
+                    _combatSystem.RegisterMonster(controller);
+                    return controller;
+                },
+                actionOnGet: (enemy) => enemy.gameObject.SetActive(true),
+                actionOnRelease: (enemy) => enemy.gameObject.SetActive(false),
+                actionOnDestroy: (enemy) =>
+                {
+                    _combatSystem.RemoveMonster(enemy);
+                    Destroy(enemy.gameObject);
+                },
                 defaultCapacity: 50,
                 maxSize: 500
             );
@@ -78,19 +89,15 @@ public class SpawnManager : MonoBehaviour
         Vector3 spawnPos = _playerTransform.position + (Vector3)(randomDir * spawnRadius);
 
         // 풀에서 적을 하나 꺼내고 위치 지정
-        GameObject enemy = _enemyPool.Get();
+        EnemyController enemy = _enemyPool.Get();
         enemy.transform.position = spawnPos;
 
-        if (enemy.TryGetComponent(out EnemyController controller))
-        {
-            _combatSystem.RegisterMonster(controller);
-            // 2. OOP 설계: 풀 전체를 넘기지 않고, '풀로 되돌아가는 행동(Action)'만 넘겨줍니다.
-            controller.Setup(_playerTransform, _enemyStat, _releaseEnemyAction);
-        }
+        // 2. OOP 설계: 풀 전체를 넘기지 않고, '풀로 되돌아가는 행동(Action)'만 넘겨줍니다.
+        enemy.Setup(_playerTransform, _enemyStat, _releaseEnemyAction);
     }
 
     // 풀에 반납하는 전용 메서드
-    private void ReleaseEnemyToPool(GameObject enemy)
+    private void ReleaseEnemyToPool(EnemyController enemy)
     {
         _enemyPool.Release(enemy);
     }

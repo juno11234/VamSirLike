@@ -18,7 +18,7 @@ public class CircleAttack : MonoBehaviour
 
     // 가비지(GC)를 절대 생성하지 않는 고정 배열 (최대 50마리 동시 타격)
     private Collider2D[] _results = new Collider2D[100];
-
+    private ContactFilter2D _filter;
 
     // VContainer가 시작할 때 이 함수를 부르면서 CombatSystem을 던져줍니다.
     [Inject]
@@ -31,6 +31,11 @@ public class CircleAttack : MonoBehaviour
     {
         float diameter = (radius * 2f) + (radius * 0.5f);
         attackEffect.transform.localScale = new Vector3(diameter, diameter, 1f);
+        
+        _filter = new ContactFilter2D();
+        _filter.SetLayerMask(enemyLayer); 
+        _filter.useLayerMask = true; 
+        _filter.useTriggers = true;
     }
 
     private void Update()
@@ -49,22 +54,17 @@ public class CircleAttack : MonoBehaviour
 
     private void PulseAttack()
     {
-        // 1. 최신식 '검색 필터'를 하나 만듭니다. (가비지 안 나옴, Struct 구조체)
-        ContactFilter2D filter = new ContactFilter2D();
-        filter.SetLayerMask(enemyLayer); // 적 레이어만 잡도록 세팅
-        filter.useLayerMask = true; // 레이어 마스크 사용 활성화
-        filter.useTriggers = true; // (선택) 적의 콜라이더가 isTrigger여도 잡아냄
+        int hitCount = Physics2D.OverlapCircle(transform.position, radius, _filter, _results);
 
-        // 2. 이름은 그냥 OverlapCircle이지만, filter와 _results 배열을 넣으면 Zero GC(NonAlloc)로 작동합니다!
-        int hitCount = Physics2D.OverlapCircle(transform.position, radius, filter, _results);
-
-        // 3. 스캔된 몬스터 수(hitCount)만큼 반복문을 돌며 데미지를 입힙니다.
         for (int i = 0; i < hitCount; i++)
         {
-            var evt = new CombatEvent()
+            IFighter targetMonster = _combatSystem.GetMonster(_results[i]);
+            if (targetMonster == null) continue;
+            var evt = new InGameEvent
             {
-                Receiver = _combatSystem.GetMonster(_results[i]),
-                Damage = damage,
+                Type = InGameEvent.EventType.Combat,
+                Receiver =targetMonster,
+                Amount = damage,
             };
             _combatSystem.AddInGameEvent(evt);
         }

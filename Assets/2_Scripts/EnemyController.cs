@@ -9,10 +9,10 @@ public class EnemyController : MonoBehaviour, IFighter
     private Transform _targetPlayer;
     private EnemyStat _stat;
     private float _currentHp;
-    private Action<GameObject> _onDeathCallback;
+    private Action<EnemyController> _onDeathCallback;
 
     // 스폰 매니저가 나를 소환할 때, 필요한 정보(타겟, 스탯, 풀)를 꽂아줍니다 (의존성 주입)
-    public void Setup(Transform target, EnemyStat stat, Action<GameObject> onDeathCallback)
+    public void Setup(Transform target, EnemyStat stat, Action<EnemyController> onDeathCallback)
     {
         _targetPlayer = target;
         _stat = stat;
@@ -31,20 +31,21 @@ public class EnemyController : MonoBehaviour, IFighter
 
     private void Die()
     {
-        _onDeathCallback?.Invoke(this.gameObject);
+        _onDeathCallback?.Invoke(this);
     }
 
 
-    public void TakeDamage(CombatEvent combatEvent)
+    public void TakeDamage(InGameEvent combatEvent)
     {
-        _currentHp -= combatEvent.Damage;
+        _currentHp -= combatEvent.Amount;
         if (_currentHp <= 0)
         {
             Die();
         }
     }
 
-    public void Heal(HealthEvent healthEvent)
+    public void Heal(InGameEvent healthEvent)
     {
+        
     }
 }
