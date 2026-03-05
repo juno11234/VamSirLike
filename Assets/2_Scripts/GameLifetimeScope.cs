@@ -44,6 +44,8 @@ public class GameInitializer : IAsyncStartable
         // WithCancellation을 통해 씬이 종료되거나 스코프가 파괴될 때 비동기 대기를 안전하게 취소합니다.
         await _dataManager.InitializeAsync(cancellationToken);
         
+        if (cancellationToken.IsCancellationRequested) return;
+        
         // 플레이어 초기화
         PlayerStat warriorStat = _dataManager.GetPlayerStat(PlayerWarriorId);
         _playerController.Initialize(warriorStat);

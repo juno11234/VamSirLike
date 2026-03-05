@@ -5,7 +5,6 @@ using UnityEngine.Pool;
 public class EnemyController : MonoBehaviour
 {
     private Transform _targetPlayer;
-    private IObjectPool<GameObject> _managedPool;
 
     private EnemyStat _stat;
 

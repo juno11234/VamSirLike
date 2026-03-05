@@ -62,7 +62,7 @@ public class DataManager : IDisposable
     {
         if (_container != null)
         {
-            Addressables.Release(_container); // Addressables 메모리 해제
+            Addressables.Release(_container); 
             _container = null;
         }
 
