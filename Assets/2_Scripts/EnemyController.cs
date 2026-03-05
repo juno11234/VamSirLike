@@ -11,13 +11,17 @@ public class EnemyController : MonoBehaviour, IFighter
     private float _currentHp;
     private Action<EnemyController> _onDeathCallback;
 
+    private void Awake()
+    {
+        _collider2D = GetComponent<Collider2D>();
+    }
+
     // 스폰 매니저가 나를 소환할 때, 필요한 정보(타겟, 스탯, 풀)를 꽂아줍니다 (의존성 주입)
     public void Setup(Transform target, EnemyStat stat, Action<EnemyController> onDeathCallback)
     {
         _targetPlayer = target;
         _stat = stat;
         _onDeathCallback = onDeathCallback;
-        _collider2D = GetComponent<Collider2D>();
         _currentHp = _stat.hp;
     }
 

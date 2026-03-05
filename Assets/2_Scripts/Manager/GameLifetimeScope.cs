@@ -14,11 +14,13 @@ public class GameLifetimeScope : LifetimeScope
     {
         // DataManager가 순수 C# 클래스(MonoBehaviour 상속 X)
         builder.Register<DataManager>(Lifetime.Singleton);
+
+        // 이씬만(Scope) .인터페이스명찰등록 .본명등록
         builder.Register<CombatSystem>(Lifetime.Scoped)
             .AsImplementedInterfaces()
             .AsSelf();
 
-        // 2. Register 대신 RegisterComponent로 변경!
+        // Register 대신 RegisterComponent로 변경!
         builder.RegisterComponent(spawnManager);
         builder.RegisterComponent(playerController);
 
@@ -47,18 +49,19 @@ public class GameInitializer : IAsyncStartable
 
     public async UniTask StartAsync(CancellationToken cancellationToken)
     {
-        // DataManager의 InitializeAsync()도 UniTask를 반환하도록 작성되어 있다고 가정합니다.
-        // WithCancellation을 통해 씬이 종료되거나 스코프가 파괴될 때 비동기 대기를 안전하게 취소합니다.
         await _dataManager.InitializeAsync(cancellationToken);
 
-        if (cancellationToken.IsCancellationRequested) return;
+        // [개선 포인트] return 대신 C# 표준 방식인 예외 던지기를 사용합니다.
+        // VContainer가 이 예외를 감지하고 안전하게 초기화 프로세스를 중단해 줍니다.
+        cancellationToken.ThrowIfCancellationRequested();
 
         // 플레이어 초기화
         PlayerStat warriorStat = _dataManager.GetPlayerStat(PlayerWarriorId);
-        _playerController.Initialize(warriorStat);
+        _playerController.Initialize(warriorStat, _combatSystem);
 
         // 몬스터 스폰 매니저 초기화
         EnemyStat enemyStat = _dataManager.GetEnemyStat(EnemyRatId);
+
         await _spawnManager.InitAsync(_playerController.transform, enemyStat, _combatSystem, cancellationToken);
 
         Debug.Log("게임 초기화 완료");

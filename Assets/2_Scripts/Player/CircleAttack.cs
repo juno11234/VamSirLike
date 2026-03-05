@@ -21,8 +21,8 @@ public class CircleAttack : MonoBehaviour
     private ContactFilter2D _filter;
 
     // VContainer가 시작할 때 이 함수를 부르면서 CombatSystem을 던져줍니다.
-    [Inject]
-    public void Construct(CombatSystem combatSystem)
+
+    public void Init(CombatSystem combatSystem)
     {
         _combatSystem = combatSystem;
     }
@@ -31,10 +31,10 @@ public class CircleAttack : MonoBehaviour
     {
         float diameter = (radius * 2f) + (radius * 0.5f);
         attackEffect.transform.localScale = new Vector3(diameter, diameter, 1f);
-        
+
         _filter = new ContactFilter2D();
-        _filter.SetLayerMask(enemyLayer); 
-        _filter.useLayerMask = true; 
+        _filter.SetLayerMask(enemyLayer);
+        _filter.useLayerMask = true;
         _filter.useTriggers = true;
     }
 
@@ -63,11 +63,10 @@ public class CircleAttack : MonoBehaviour
             var evt = new InGameEvent
             {
                 Type = InGameEvent.EventType.Combat,
-                Receiver =targetMonster,
+                Receiver = targetMonster,
                 Amount = damage,
             };
             _combatSystem.AddInGameEvent(evt);
         }
     }
-    
 }
