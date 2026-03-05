@@ -64,7 +64,7 @@ public class SpawnManager : MonoBehaviour
             SpawnEnemy();
 
             // spawnInterval(0.5초) 만큼 대기 (Update문 필요 없음!)
-            await UniTask.Delay(System.TimeSpan.FromSeconds(spawnInterval), cancellationToken: token);
+            await UniTask.Delay(TimeSpan.FromSeconds(spawnInterval), cancellationToken: token);
         }
     }
 

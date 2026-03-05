@@ -4939,7 +4939,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91bdf60d9f7709841b37c9488f253ecb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 5
+  damage: 15
   radius: 3
   cooldown: 1
   enemyLayer:

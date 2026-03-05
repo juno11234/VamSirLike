@@ -18,7 +18,7 @@ public class CircleAttack : MonoBehaviour
 
     private void Start()
     {
-        float diameter = radius * 2f;
+        float diameter = (radius * 2f) + (radius * 0.5f);
         attackEffect.transform.localScale = new Vector3(diameter, diameter, 1f);
     }
 
