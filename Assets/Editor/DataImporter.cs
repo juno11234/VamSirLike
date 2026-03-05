@@ -42,7 +42,15 @@ public class DataImporter : EditorWindow
                 return;
             }
 
-            ImportAllData();
+            // GUI 이벤트 도중 충돌을 피하기 위해, 다음 프레임에 임포트 실행
+            EditorApplication.delayCall += () => 
+            {
+                // 3. 데이터를 수정하기 전에 "나 이거 수정할 거니까 기록해 둬!" 라고 유니티에 알림 (안전성 확보)
+                Undo.RecordObject(targetContainer, "Import TSV Data");
+        
+                // 실제 임포트 로직 실행
+                ImportAllData();
+            };
         }
     }
 
