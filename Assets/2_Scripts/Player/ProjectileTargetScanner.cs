@@ -12,7 +12,7 @@ public class ProjectileTargetScanner : MonoBehaviour
     private CombatSystem _combatSystem;
     private float _timer;
 
-    private Collider2D[] _results = new Collider2D[50];
+    private Collider2D[] _results = new Collider2D[100];
     private ContactFilter2D _filter;
     
     public void Init(CombatSystem combatSystem, IFighter sender)

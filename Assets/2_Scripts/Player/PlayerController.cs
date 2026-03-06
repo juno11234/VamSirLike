@@ -25,6 +25,8 @@ public class PlayerController : MonoBehaviour, IFighter
         _isInitialized = true;
         _combatSystem = combatSystem;
         CircleAttack attack = GetComponentInChildren<CircleAttack>();
+        ProjectileTargetScanner targetScanner = GetComponentInChildren<ProjectileTargetScanner>();
+        targetScanner.Init(_combatSystem,this);
         attack.Init(_combatSystem);
     }
 
