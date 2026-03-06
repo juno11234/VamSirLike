@@ -3,7 +3,7 @@ using UnityEngine;
 
 public interface ISkill
 {
-    void Init(CombatSystem combatSystem, SkillData skillData);
+    void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData);
 }
 
 public class SkillManager : MonoBehaviour
@@ -34,7 +34,7 @@ public class SkillManager : MonoBehaviour
 
             if (data != null)
             {
-                weapon.Init(_combatSystem, data);
+                weapon.Init(_combatSystem, _sender, data);
                 _activeWeapons.Add(weapon);
             }
         }
@@ -46,7 +46,7 @@ public class SkillManager : MonoBehaviour
         GameObject weaponObj = Instantiate(weaponPrefab, transform); // 매니저의 자식으로 생성
         ISkill newWeapon = weaponObj.GetComponent<ISkill>();
 
-        newWeapon.Init(_combatSystem, data);
+        newWeapon.Init(_combatSystem, _sender, data);
         _activeWeapons.Add(newWeapon);
     }
 

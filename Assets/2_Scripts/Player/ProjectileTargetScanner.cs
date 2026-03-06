@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class ProjectileTargetScanner : MonoBehaviour
+public class ProjectileTargetScanner : MonoBehaviour,ISkill
 {
     [Header("Weapon Settings")] [SerializeField]
     private ProjectileAttack projectilePrefab;
@@ -13,6 +13,7 @@ public class ProjectileTargetScanner : MonoBehaviour
     private Transform _projectileContainer;
     private CombatSystem _combatSystem;
     private SkillData _skillData;
+    private IFighter _sender;
 
     private Collider2D[] _results = new Collider2D[100];
     private ContactFilter2D _filter;
@@ -23,10 +24,11 @@ public class ProjectileTargetScanner : MonoBehaviour
 
     public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
+        _sender = sender;
         _combatSystem = combatSystem;
         _skillData = skillData;
 
-        _cooldown=_skillData.cooldown;
+        _cooldown = _skillData.cooldown;
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer);
         _filter.useLayerMask = true;
@@ -62,7 +64,7 @@ public class ProjectileTargetScanner : MonoBehaviour
         if (_timer >= _cooldown)
         {
             Fire();
-            _timer = 0f;
+            _timer -= _cooldown;
         }
     }
 
@@ -81,7 +83,7 @@ public class ProjectileTargetScanner : MonoBehaviour
         projectile.transform.position = transform.position;
 
         // 투사체 초기화
-        projectile.Init(_combatSystem, direction, _skillData.baseAtk, ReleaseProjectile);
+        projectile.Init(_combatSystem, _sender, direction, _skillData.baseAtk, ReleaseProjectile);
     }
 
     private void ReleaseProjectile(ProjectileAttack projectile)

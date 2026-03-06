@@ -57,6 +57,7 @@ public class DataImporter : EditorWindow
     // 실제 파싱 및 데이터 저장 로직
     private void ImportAllData()
     {
+        Selection.activeObject = null;
         // 1. 적 데이터 파싱
         if (enemyTSV != null)
         {

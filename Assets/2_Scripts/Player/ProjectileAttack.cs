@@ -17,9 +17,10 @@ public class ProjectileAttack : MonoBehaviour
 
     private  Action<ProjectileAttack> _onReturnPool;
 
-    public void Init(CombatSystem combatSystem, Vector2 direction, float damage, Action<ProjectileAttack> returnPool)
+    public void Init(CombatSystem combatSystem,IFighter sender, Vector2 direction, float damage, Action<ProjectileAttack> returnPool)
     {
         _combatSystem = combatSystem;
+        _sender = sender;
         _direction = direction;
         _damage = damage;
         _timer = 0f;
@@ -62,6 +63,7 @@ public class ProjectileAttack : MonoBehaviour
         if (_timer >= lifeTime)
         {
             ReturnToPool();
+            return;
         }
     }
 
