@@ -18,6 +18,7 @@ public class ProjectileTargetScanner : MonoBehaviour
     private ContactFilter2D _filter;
 
     private ObjectPool<ProjectileAttack> _pool;
+    private Transform _projectileContainer;
 
     public void Init(CombatSystem combatSystem, IFighter sender)
     {
@@ -27,8 +28,11 @@ public class ProjectileTargetScanner : MonoBehaviour
         _filter.useLayerMask = true;
         _filter.useTriggers = true;
 
+        // 1. 하이어라키 최상단(Root)에 투사체들을 모아둘 빈 게임오브젝트 생성
+        _projectileContainer = new GameObject("ProjectileContainer").transform;
+
         _pool = new ObjectPool<ProjectileAttack>(
-            createFunc: () => Instantiate(projectilePrefab, transform), // 자식으로 생성하여 하이어라키 정리
+            createFunc: () => Instantiate(projectilePrefab, _projectileContainer), // 자식으로 생성하여 하이어라키 정리
             actionOnGet: (obj) => obj.gameObject.SetActive(true),
             actionOnRelease: (obj) => obj.gameObject.SetActive(false),
             actionOnDestroy: (obj) => Destroy(obj.gameObject),
@@ -41,7 +45,7 @@ public class ProjectileTargetScanner : MonoBehaviour
         {
             prefab[i] = _pool.Get(); // 1. 강제로 20개를 생성해서 꺼냄
         }
-        
+
         for (int i = 0; i < 20; i++)
         {
             _pool.Release(prefab[i]); // 2. 즉시 풀로 반납하여 비활성화 대기 상태로 만듦
