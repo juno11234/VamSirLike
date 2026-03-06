@@ -1,20 +1,24 @@
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class ProjectileTargetScanner : MonoBehaviour
 {
-    [Header("Weapon Settings")]
-    [SerializeField] private ProjectileAttack projectilePrefab;
+    [Header("Weapon Settings")] [SerializeField]
+    private ProjectileAttack projectilePrefab;
+
     [SerializeField] private float scanRadius = 10f; // 적 탐색 범위
-    [SerializeField] private float cooldown = 1f;    // 발사 쿨타임
-    [SerializeField] private float damage = 10f;     // 임시 데미지
+    [SerializeField] private float cooldown = 1f; // 발사 쿨타임
+    [SerializeField] private float damage = 10f; // 임시 데미지
     [SerializeField] private LayerMask enemyLayer;
-    
+
     private CombatSystem _combatSystem;
     private float _timer;
 
     private Collider2D[] _results = new Collider2D[100];
     private ContactFilter2D _filter;
-    
+
+    private ObjectPool<ProjectileAttack> _pool;
+
     public void Init(CombatSystem combatSystem, IFighter sender)
     {
         _combatSystem = combatSystem;
@@ -22,9 +26,28 @@ public class ProjectileTargetScanner : MonoBehaviour
         _filter.SetLayerMask(enemyLayer);
         _filter.useLayerMask = true;
         _filter.useTriggers = true;
-    
+
+        _pool = new ObjectPool<ProjectileAttack>(
+            createFunc: () => Instantiate(projectilePrefab, transform), // 자식으로 생성하여 하이어라키 정리
+            actionOnGet: (obj) => obj.gameObject.SetActive(true),
+            actionOnRelease: (obj) => obj.gameObject.SetActive(false),
+            actionOnDestroy: (obj) => Destroy(obj.gameObject),
+            defaultCapacity: 20,
+            maxSize: 100 // 최대 100개 제한
+        );
+
+        ProjectileAttack[] prefab = new ProjectileAttack[20];
+        for (int i = 0; i < 20; i++)
+        {
+            prefab[i] = _pool.Get(); // 1. 강제로 20개를 생성해서 꺼냄
+        }
+        
+        for (int i = 0; i < 20; i++)
+        {
+            _pool.Release(prefab[i]); // 2. 즉시 풀로 반납하여 비활성화 대기 상태로 만듦
+        }
     }
-    
+
     private void Update()
     {
         _timer += Time.deltaTime;
@@ -34,6 +57,7 @@ public class ProjectileTargetScanner : MonoBehaviour
             _timer = 0f;
         }
     }
+
     private void Fire()
     {
         Transform target = FindClosestEnemy();
@@ -42,12 +66,21 @@ public class ProjectileTargetScanner : MonoBehaviour
         // 방향 벡터 계산
         Vector2 direction = (target.position - transform.position).normalized;
 
-        // 투사체 생성 (우선 Instantiate 사용. 추후 ObjectPool 연동 권장)
-        ProjectileAttack projectile = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-        
+        // 풀에서 꺼내기
+        ProjectileAttack projectile = _pool.Get();
+
+        // 꺼낸 후 반드시 발사대 위치로 초기화
+        projectile.transform.position = transform.position;
+
         // 투사체 초기화
-        projectile.Init(_combatSystem, direction, damage);
+        projectile.Init(_combatSystem, direction, damage, ReleaseProjectile);
     }
+
+    private void ReleaseProjectile(ProjectileAttack projectile)
+    {
+        _pool.Release(projectile);
+    }
+
     // [핵심] 가장 가까운 적 찾기
     private Transform FindClosestEnemy()
     {
