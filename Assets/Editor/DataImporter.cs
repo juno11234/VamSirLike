@@ -161,7 +161,7 @@ public class DataImporter : EditorWindow
 
         
         EditorUtility.SetDirty(targetContainer);
-        AssetDatabase.SaveAssets();
+        //AssetDatabase.SaveAssets();
         
         EditorUtility.DisplayDialog("완료", "데이터 임포트가 성공적으로 끝났습니다.", "확인");
     }

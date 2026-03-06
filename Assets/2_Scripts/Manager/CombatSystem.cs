@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
 
-public class CombatSystem : ITickable,IDisposable
+public class CombatSystem : ITickable, IDisposable
 {
     private const int Max_Event_Count = 1000;
 
@@ -16,6 +17,15 @@ public class CombatSystem : ITickable,IDisposable
     private readonly Dictionary<Collider2D, IFighter> _monstersDict = new Dictionary<Collider2D, IFighter>();
     private readonly Queue<InGameEvent> _eventQueue = new Queue<InGameEvent>();
     public readonly Callback EventCallback = new Callback();
+
+    private readonly DataManager _dataManager;
+
+    // VContainer를 통한 의존성 주입
+    [Inject]
+    public CombatSystem(DataManager dataManager)
+    {
+        _dataManager = dataManager;
+    }
 
     public void Tick()
     {
@@ -32,7 +42,7 @@ public class CombatSystem : ITickable,IDisposable
                     // 콜백 발생! (UI 업데이트나 이펙트 재생에 활용)
                     EventCallback.OnCombatEvent?.Invoke(inGameEvent);
                     break;
-                    
+
                 case InGameEvent.EventType.Heal:
                     inGameEvent.Receiver.Heal(inGameEvent);
                     EventCallback.OnHealEvent?.Invoke(inGameEvent);
@@ -40,7 +50,7 @@ public class CombatSystem : ITickable,IDisposable
             }
         }
     }
-    
+
     public void AddInGameEvent(InGameEvent e)
     {
         _eventQueue.Enqueue(e);
@@ -59,14 +69,17 @@ public class CombatSystem : ITickable,IDisposable
     {
         _monstersDict.Remove(monster.MainCollider);
     }
+
     public IFighter GetMonster(Collider2D coll)
     {
         if (_monstersDict.TryGetValue(coll, out var monster))
         {
             return monster;
         }
+
         return null;
     }
+
     public void Dispose()
     {
         _monstersDict.Clear();
