@@ -481,7 +481,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 8393457607896627503, guid: 52f1074a63d929e449a9d2c4b05b4927, type: 3}
-  scanRadius: 7.5
+  scanRadius: 8
   cooldown: 1
   damage: 10
   enemyLayer:
@@ -766,7 +766,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 15, y: 15, z: 15}
+  m_LocalScale: {x: 16, y: 16, z: 16}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 694894400}

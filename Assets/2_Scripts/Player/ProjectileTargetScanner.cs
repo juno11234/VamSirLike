@@ -7,22 +7,24 @@ public class ProjectileTargetScanner : MonoBehaviour
     private ProjectileAttack projectilePrefab;
 
     [SerializeField] private float scanRadius = 10f; // 적 탐색 범위
-    [SerializeField] private float cooldown = 1f; // 발사 쿨타임
-    [SerializeField] private float damage = 10f; // 임시 데미지
     [SerializeField] private LayerMask enemyLayer;
 
+    private ObjectPool<ProjectileAttack> _pool;
+    private Transform _projectileContainer;
     private CombatSystem _combatSystem;
-    private float _timer;
+    private SkillData _skillData;
 
     private Collider2D[] _results = new Collider2D[100];
     private ContactFilter2D _filter;
 
-    private ObjectPool<ProjectileAttack> _pool;
-    private Transform _projectileContainer;
 
-    public void Init(CombatSystem combatSystem, IFighter sender)
+    private float _timer;
+
+    public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
         _combatSystem = combatSystem;
+        _skillData = skillData;
+        
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer);
         _filter.useLayerMask = true;
@@ -55,7 +57,7 @@ public class ProjectileTargetScanner : MonoBehaviour
     private void Update()
     {
         _timer += Time.deltaTime;
-        if (_timer >= cooldown)
+        if (_timer >= _skillData.cooldown)
         {
             Fire();
             _timer = 0f;
@@ -77,7 +79,7 @@ public class ProjectileTargetScanner : MonoBehaviour
         projectile.transform.position = transform.position;
 
         // 투사체 초기화
-        projectile.Init(_combatSystem, direction, damage, ReleaseProjectile);
+        projectile.Init(_combatSystem, direction, _skillData.baseAtk, ReleaseProjectile);
     }
 
     private void ReleaseProjectile(ProjectileAttack projectile)

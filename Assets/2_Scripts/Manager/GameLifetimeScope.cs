@@ -37,6 +37,7 @@ public class GameInitializer : IAsyncStartable
 
     private const int PlayerWarriorId = 3001;
     private const int EnemyRatId = 1001;
+    private const int DaggerId = 4002;
 
     public GameInitializer(DataManager dataManager, SpawnManager spawnManager, PlayerController playerController,
         CombatSystem combatSystem)
@@ -57,7 +58,8 @@ public class GameInitializer : IAsyncStartable
 
         // 플레이어 초기화
         PlayerStat warriorStat = _dataManager.GetPlayerStat(PlayerWarriorId);
-        _playerController.Initialize(warriorStat, _combatSystem);
+        SkillData daggerData = _dataManager.GetSkillData(DaggerId);
+        _playerController.Initialize(warriorStat, _combatSystem, daggerData);
 
         // 몬스터 스폰 매니저 초기화
         EnemyStat enemyStat = _dataManager.GetEnemyStat(EnemyRatId);

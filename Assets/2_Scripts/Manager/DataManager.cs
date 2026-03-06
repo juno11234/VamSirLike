@@ -11,7 +11,7 @@ public class DataManager : IDisposable
     private GameDataContainer _container;
     private readonly Dictionary<int, PlayerStat> _playerStatDict = new Dictionary<int, PlayerStat>();
     private readonly Dictionary<int, EnemyStat> _enemyStatDict = new Dictionary<int, EnemyStat>();
-
+    private readonly Dictionary<int, SkillData> _playerSkillDict = new Dictionary<int, SkillData>();
 
     public async UniTask InitializeAsync(CancellationToken ct = default)
     {
@@ -35,6 +35,11 @@ public class DataManager : IDisposable
 
         foreach (EnemyStat stat in _container.EnemyStats)
             _enemyStatDict[stat.id] = stat;
+
+        foreach (SkillData skillData in _container.SkillData)
+        {
+            _playerSkillDict[skillData.id] = skillData;
+        }
     }
 
     public PlayerStat GetPlayerStat(int id)
@@ -55,14 +60,21 @@ public class DataManager : IDisposable
         return null;
     }
 
-    public List<SkillData> GetSkillData() => _container.SkillData;
+    public SkillData GetSkillData(int id)
+    {
+        if(_playerSkillDict.TryGetValue(id, out var skillData))
+            return skillData;
+        
+        Debug.LogError($"ID {id}에 해당하는 스킬 데이터가 없습니다!");
+        return null;
+    }
 
     // VContainer의 생명주기가 끝날 때(게임 종료, 씬 전환 등) 자동으로 호출됩니다.
     public void Dispose()
     {
         if (_container != null)
         {
-            Addressables.Release(_container); 
+            Addressables.Release(_container);
             _container = null;
         }
 
