@@ -58,8 +58,7 @@ public class GameInitializer : IAsyncStartable
 
         // 플레이어 초기화
         PlayerStat warriorStat = _dataManager.GetPlayerStat(PlayerWarriorId);
-        SkillData daggerData = _dataManager.GetSkillData(DaggerId);
-        _playerController.Initialize(warriorStat, _combatSystem, daggerData);
+        _playerController.Initialize(warriorStat, _combatSystem, _dataManager);
 
         // 몬스터 스폰 매니저 초기화
         EnemyStat enemyStat = _dataManager.GetEnemyStat(EnemyRatId);

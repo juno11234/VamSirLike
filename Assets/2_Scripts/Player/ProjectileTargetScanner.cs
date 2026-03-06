@@ -19,12 +19,14 @@ public class ProjectileTargetScanner : MonoBehaviour
 
 
     private float _timer;
+    private float _cooldown;
 
     public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
         _combatSystem = combatSystem;
         _skillData = skillData;
-        
+
+        _cooldown=_skillData.cooldown;
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer);
         _filter.useLayerMask = true;
@@ -57,7 +59,7 @@ public class ProjectileTargetScanner : MonoBehaviour
     private void Update()
     {
         _timer += Time.deltaTime;
-        if (_timer >= _skillData.cooldown)
+        if (_timer >= _cooldown)
         {
             Fire();
             _timer = 0f;

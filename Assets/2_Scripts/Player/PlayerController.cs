@@ -13,21 +13,22 @@ public class PlayerController : MonoBehaviour, IFighter
     private bool _isInitialized = false;
     private SpriteRenderer _spriteRenderer;
     private CombatSystem _combatSystem;
+    private SkillManager _skillManager;
 
     [Header("Map Boundaries")] public Vector2 minBounds = new Vector2(-10f, -10f); // 좌하단 끝 좌표
     public Vector2 maxBounds = new Vector2(10f, 10f); // 우상단 끝 좌표
 
-    public void Initialize(PlayerStat stat, CombatSystem combatSystem, SkillData skillData)
+    public void Initialize(PlayerStat stat, CombatSystem combatSystem, DataManager dataManager)
     {
-        _collider = GetComponent<Collider2D>();
-        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _moveSpeed = stat.baseSpeed;
         _isInitialized = true;
         _combatSystem = combatSystem;
-        CircleAttack attack = GetComponentInChildren<CircleAttack>();
-        ProjectileTargetScanner targetScanner = GetComponentInChildren<ProjectileTargetScanner>();
-        targetScanner.Init(_combatSystem, this, skillData);
-        attack.Init(_combatSystem);
+
+        _collider = GetComponent<Collider2D>();
+        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        _skillManager = GetComponentInChildren<SkillManager>();
+
+        _skillManager.Init(_combatSystem, this, dataManager);
     }
 
     private void Awake()
