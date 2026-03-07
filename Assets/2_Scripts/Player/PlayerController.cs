@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour, IFighter
 {
     [Header("Magnet Settings")]
-    [SerializeField] private float magnetRadius = 2f; // 보석 획득 반경
+    [SerializeField] private float magnetRadius = 4f; // 보석 획득 반경
     [SerializeField] private LayerMask itemLayer;     // 보석 전용 레이어 (인스펙터 세팅 필수)
     [SerializeField] private int[] startingSkillIds;
     public Collider2D MainCollider => _collider;
@@ -74,13 +74,12 @@ public class PlayerController : MonoBehaviour, IFighter
     private void CollectItems()
     {
         int hitCount = Physics2D.OverlapCircle(transform.position, magnetRadius, _itemFilter, _itemResults);
-        
         for (int i = 0; i < hitCount; i++)
         {
             // TryGetComponent가 GetComponent보다 미세하게 더 빠르고 안전합니다
             if (_itemResults[i].TryGetComponent(out ExpItem item))
             {
-                item.Collect(); // 획득!
+                item.SetTarget(transform); // 획득!
             }
         }
     }

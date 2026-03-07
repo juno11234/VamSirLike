@@ -46,6 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 431025c833e62f44298833349192cdfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  magnetRadius: 2
+  itemLayer:
+    serializedVersion: 2
+    m_Bits: 128
   startingSkillIds: a10f0000a20f0000
   minBounds: {x: -19, y: -19}
   maxBounds: {x: 19, y: 19}
