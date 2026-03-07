@@ -66,8 +66,9 @@ public class GameInitializer : IAsyncStartable
         // 몬스터 스폰 매니저 초기화
         EnemyStat enemyStat = _dataManager.GetEnemyStat(EnemyRatId);
 
-        await _spawnManager.InitAsync(_playerController.transform, enemyStat, _combatSystem, _expManager,cancellationToken);
-
+        await _spawnManager.InitAsync(_playerController.transform, enemyStat, _combatSystem, _expManager,
+            cancellationToken);
+        _expManager.Init();
         Debug.Log("게임 초기화 완료");
     }
 }
