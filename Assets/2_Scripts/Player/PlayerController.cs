@@ -4,9 +4,10 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IFighter
 {
-    [Header("Magnet Settings")]
-    [SerializeField] private float magnetRadius = 4f; // 보석 획득 반경
-    [SerializeField] private LayerMask itemLayer;     // 보석 전용 레이어 (인스펙터 세팅 필수)
+    [Header("Magnet Settings")] [SerializeField]
+    private float magnetRadius = 4f; // 보석 획득 반경
+
+    [SerializeField] private LayerMask itemLayer; // 보석 전용 레이어 (인스펙터 세팅 필수)
     [SerializeField] private int[] startingSkillIds;
     public Collider2D MainCollider => _collider;
     private Collider2D _collider;
@@ -21,11 +22,18 @@ public class PlayerController : MonoBehaviour, IFighter
 
     [Header("Map Boundaries")] public Vector2 minBounds = new Vector2(-10f, -10f); // 좌하단 끝 좌표
     public Vector2 maxBounds = new Vector2(10f, 10f); // 우상단 끝 좌표
-    
+
+    public float MaxHp { get; private set; }
+    public float CurrentHp { get; private set; }
+    public event Action<float, float> OnHpChanged;
+
     private Collider2D[] _itemResults = new Collider2D[20];
     private ContactFilter2D _itemFilter;
+
     public void Initialize(PlayerStat stat, CombatSystem combatSystem, DataManager dataManager)
     {
+        MaxHp = stat.baseHp;
+        CurrentHp = MaxHp;
         _moveSpeed = stat.baseSpeed;
         _isInitialized = true;
         _combatSystem = combatSystem;
@@ -34,8 +42,8 @@ public class PlayerController : MonoBehaviour, IFighter
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _skillManager = GetComponentInChildren<SkillManager>();
 
-        _skillManager.Init(_combatSystem, this, dataManager,startingSkillIds);
-        
+        _skillManager.Init(_combatSystem, this, dataManager, startingSkillIds);
+
         _itemFilter = new ContactFilter2D();
         _itemFilter.SetLayerMask(itemLayer);
         _itemFilter.useLayerMask = true;
@@ -71,6 +79,7 @@ public class PlayerController : MonoBehaviour, IFighter
         transform.position = nextPosition;
         CollectItems();
     }
+
     private void CollectItems()
     {
         int hitCount = Physics2D.OverlapCircle(transform.position, magnetRadius, _itemFilter, _itemResults);
@@ -86,9 +95,24 @@ public class PlayerController : MonoBehaviour, IFighter
 
     public void TakeDamage(InGameEvent combatEvent)
     {
+        CurrentHp -= combatEvent.Amount;
+        OnHpChanged?.Invoke(CurrentHp, MaxHp);
+        if (CurrentHp <= 0)
+        {
+            Die();
+        }
     }
 
     public void Heal(InGameEvent healthEvent)
     {
+        CurrentHp += healthEvent.Amount;
+        if (CurrentHp > MaxHp) CurrentHp = MaxHp;
+        
+        OnHpChanged?.Invoke(CurrentHp, MaxHp);
+    }
+
+    private void Die()
+    {
+        Debug.Log("플레이어 사망!");
     }
 }

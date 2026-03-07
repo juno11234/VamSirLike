@@ -10,6 +10,7 @@ public class GameLifetimeScope : LifetimeScope
     [SerializeField] private PlayerController playerController;
     [SerializeField] private SpawnManager spawnManager;
     [SerializeField] private ExpManager expManager;
+    [SerializeField] private UIManager uiManager;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -25,6 +26,7 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterComponent(spawnManager);
         builder.RegisterComponent(playerController);
         builder.RegisterComponent(expManager);
+        builder.RegisterComponent(uiManager);
 
         builder.RegisterEntryPoint<GameInitializer>();
     }
@@ -37,6 +39,7 @@ public class GameInitializer : IAsyncStartable
     private readonly PlayerController _playerController;
     private readonly CombatSystem _combatSystem;
     private readonly ExpManager _expManager;
+    private readonly UIManager _uiManager;
 
     private const int PlayerWarriorId = 3001;
     private const int EnemyRatId = 1001;
