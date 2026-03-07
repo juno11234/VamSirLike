@@ -57,9 +57,7 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
             _pool.Release(prefab[i]); // 2. 즉시 풀로 반납하여 비활성화 대기 상태로 만듦
         }
     }
-
-  
-
+    
     private void Update()
     {
         _timer += Time.deltaTime;

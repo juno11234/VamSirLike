@@ -22,13 +22,16 @@ public class SpawnManager : MonoBehaviour
     private ObjectPool<EnemyController> _enemyPool;
     private CancellationTokenSource _cts;
     private CombatSystem _combatSystem;
+    private ExpManager _expManager;
 
     private Action<EnemyController> _returnEnemyPoolAction;
 
     // 1. Init을 UniTask로 변경하여 로딩 완료를 외부에서 대기할 수 있게 합니다.
     public async UniTask InitAsync(Transform playerTransform, EnemyStat enemyStat, CombatSystem combatSystem,
+        ExpManager expManager,
         CancellationToken ct = default)
     {
+        _expManager = expManager;
         _playerTransform = playerTransform;
         _enemyStat = enemyStat;
         _combatSystem = combatSystem;
@@ -60,17 +63,18 @@ public class SpawnManager : MonoBehaviour
                 maxSize: 500
             );
             _returnEnemyPoolAction = ReleaseEnemyToPool;
-            
+
             EnemyController[] prefab = new EnemyController[50];
             for (int i = 0; i < 50; i++)
             {
                 prefab[i] = _enemyPool.Get(); // 1. 강제로 20개를 생성해서 꺼냄
             }
-        
+
             for (int i = 0; i < 50; i++)
             {
                 _enemyPool.Release(prefab[i]); // 2. 즉시 풀로 반납하여 비활성화 대기 상태로 만듦
             }
+
             // 로딩과 초기화가 끝났으므로 스폰 루프 시작
             SpawnLoopAsync(_cts.Token).Forget();
         }
@@ -110,6 +114,7 @@ public class SpawnManager : MonoBehaviour
     // 풀에 반납하는 전용 메서드
     private void ReleaseEnemyToPool(EnemyController enemy)
     {
+        _expManager.SpawnGem(enemy.transform.position, 10f);
         _enemyPool.Release(enemy);
     }
 

@@ -9,6 +9,7 @@ public class GameLifetimeScope : LifetimeScope
 {
     [SerializeField] private PlayerController playerController;
     [SerializeField] private SpawnManager spawnManager;
+    [SerializeField] private ExpManager expManager;
 
     protected override void Configure(IContainerBuilder builder)
     {
@@ -23,6 +24,7 @@ public class GameLifetimeScope : LifetimeScope
         // Register 대신 RegisterComponent로 변경!
         builder.RegisterComponent(spawnManager);
         builder.RegisterComponent(playerController);
+        builder.RegisterComponent(expManager);
 
         builder.RegisterEntryPoint<GameInitializer>();
     }
@@ -34,18 +36,19 @@ public class GameInitializer : IAsyncStartable
     private readonly SpawnManager _spawnManager;
     private readonly PlayerController _playerController;
     private readonly CombatSystem _combatSystem;
+    private readonly ExpManager _expManager;
 
     private const int PlayerWarriorId = 3001;
     private const int EnemyRatId = 1001;
-    private const int DaggerId = 4002;
 
     public GameInitializer(DataManager dataManager, SpawnManager spawnManager, PlayerController playerController,
-        CombatSystem combatSystem)
+        CombatSystem combatSystem, ExpManager expManager)
     {
         _combatSystem = combatSystem;
         _dataManager = dataManager;
         _spawnManager = spawnManager;
         _playerController = playerController;
+        _expManager = expManager;
     }
 
     public async UniTask StartAsync(CancellationToken cancellationToken)
@@ -63,7 +66,7 @@ public class GameInitializer : IAsyncStartable
         // 몬스터 스폰 매니저 초기화
         EnemyStat enemyStat = _dataManager.GetEnemyStat(EnemyRatId);
 
-        await _spawnManager.InitAsync(_playerController.transform, enemyStat, _combatSystem, cancellationToken);
+        await _spawnManager.InitAsync(_playerController.transform, enemyStat, _combatSystem, _expManager,cancellationToken);
 
         Debug.Log("게임 초기화 완료");
     }

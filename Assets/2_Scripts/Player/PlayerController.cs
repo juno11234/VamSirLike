@@ -4,6 +4,9 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IFighter
 {
+    [Header("Magnet Settings")]
+    [SerializeField] private float magnetRadius = 2f; // 보석 획득 반경
+    [SerializeField] private LayerMask itemLayer;     // 보석 전용 레이어 (인스펙터 세팅 필수)
     [SerializeField] private int[] startingSkillIds;
     public Collider2D MainCollider => _collider;
     private Collider2D _collider;
@@ -18,7 +21,9 @@ public class PlayerController : MonoBehaviour, IFighter
 
     [Header("Map Boundaries")] public Vector2 minBounds = new Vector2(-10f, -10f); // 좌하단 끝 좌표
     public Vector2 maxBounds = new Vector2(10f, 10f); // 우상단 끝 좌표
-
+    
+    private Collider2D[] _itemResults = new Collider2D[20];
+    private ContactFilter2D _itemFilter;
     public void Initialize(PlayerStat stat, CombatSystem combatSystem, DataManager dataManager)
     {
         _moveSpeed = stat.baseSpeed;
@@ -30,6 +35,11 @@ public class PlayerController : MonoBehaviour, IFighter
         _skillManager = GetComponentInChildren<SkillManager>();
 
         _skillManager.Init(_combatSystem, this, dataManager,startingSkillIds);
+        
+        _itemFilter = new ContactFilter2D();
+        _itemFilter.SetLayerMask(itemLayer);
+        _itemFilter.useLayerMask = true;
+        _itemFilter.useTriggers = true;
     }
 
     private void Awake()
@@ -59,8 +69,21 @@ public class PlayerController : MonoBehaviour, IFighter
         nextPosition.x = Mathf.Clamp(nextPosition.x, minBounds.x, maxBounds.x);
         nextPosition.y = Mathf.Clamp(nextPosition.y, minBounds.y, maxBounds.y);
         transform.position = nextPosition;
+        CollectItems();
     }
-
+    private void CollectItems()
+    {
+        int hitCount = Physics2D.OverlapCircle(transform.position, magnetRadius, _itemFilter, _itemResults);
+        
+        for (int i = 0; i < hitCount; i++)
+        {
+            // TryGetComponent가 GetComponent보다 미세하게 더 빠르고 안전합니다
+            if (_itemResults[i].TryGetComponent(out ExpItem item))
+            {
+                item.Collect(); // 획득!
+            }
+        }
+    }
 
     public void TakeDamage(InGameEvent combatEvent)
     {
