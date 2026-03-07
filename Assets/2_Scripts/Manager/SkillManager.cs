@@ -1,9 +1,12 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 public interface ISkill
 {
     void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData);
+    void LevelUp(SkillData skillData);
 }
 
 public class SkillManager : MonoBehaviour
@@ -13,47 +16,43 @@ public class SkillManager : MonoBehaviour
     private DataManager _dataManager;
 
     // 현재 보유 중인 무기 리스트
-    private List<ISkill> _activeWeapons = new List<ISkill>();
+    private Dictionary<int, ISkill> _activeWeapons = new Dictionary<int, ISkill>();
 
-    public void Init(CombatSystem combatSystem, IFighter sender, DataManager dataManager)
+    public void Init(CombatSystem combatSystem, IFighter sender, DataManager dataManager, int[] startingSkillIds)
     {
         _combatSystem = combatSystem;
         _sender = sender;
         _dataManager = dataManager;
 
-        // 시작할 때 자식으로 있는 모든 무기를 찾아서 초기화
-        //Todo: 기본공격만 가지고 있고 나머지는 레벨업시 추가됨
-        ISkill[] childWeapons = GetComponentsInChildren<ISkill>(true);
-
-        foreach (var weapon in childWeapons)
+        foreach (int skillId in startingSkillIds)
         {
-            // 임시로 무기 스크립트의 이름이나 타입을 보고 ID를 매칭하는 방식
-            // (실제로는 무기 Prefab을 Addressables로 동적 생성하는 방식을 더 추천합니다)
-            int skillId = GetSkillIdByType(weapon.GetType());
-            SkillData data = _dataManager.GetSkillData(skillId);
-
-            if (data != null)
-            {
-                weapon.Init(_combatSystem, _sender, data);
-                _activeWeapons.Add(weapon);
-            }
+            AddOrLevelUpWeaponAsync(skillId).Forget();
         }
     }
 
-    public void AddWeapon(int skillId, GameObject weaponPrefab)
+    // 2. 외부에서 매개변수로 Prefab을 넘겨주는 방식 대신, Addressable로 직접 로드!
+    // (TSV 스킬 데이터에 "PrefabName" 같은 컬럼이 있다고 가정)
+    public async UniTask AddOrLevelUpWeaponAsync(int skillId)
     {
         SkillData data = _dataManager.GetSkillData(skillId);
-        GameObject weaponObj = Instantiate(weaponPrefab, transform); // 매니저의 자식으로 생성
-        ISkill newWeapon = weaponObj.GetComponent<ISkill>();
+        if (data == null) return;
 
+        // 이미 가지고 있는 무기라면 레벨업!
+        if (_activeWeapons.TryGetValue(skillId, out ISkill existingWeapon))
+        {
+            existingWeapon.LevelUp(data); // 레벨업 로직 호출
+            Debug.Log($"[SkillManager] 스킬 {data.name} 레벨업!");
+            return;
+        }
+
+        // 새로운 무기라면 Addressable로 프리팹 비동기 로드
+        // (주의: Addressables 주소는 게임 기획에 맞게 수정 필요)
+        GameObject weaponPrefab = await Addressables.InstantiateAsync(data.prefabKey, transform).ToUniTask();
+
+        ISkill newWeapon = weaponPrefab.GetComponent<ISkill>();
         newWeapon.Init(_combatSystem, _sender, data);
-        _activeWeapons.Add(newWeapon);
-    }
 
-    private int GetSkillIdByType(System.Type weaponType)
-    {
-        if (weaponType == typeof(CircleAttack)) return 4001;
-        if (weaponType == typeof(ProjectileTargetScanner)) return 4002;
-        return 0;
+        _activeWeapons.Add(skillId, newWeapon);
+        Debug.Log($"[SkillManager] 신규 스킬 {data.name} 획득!");
     }
 }

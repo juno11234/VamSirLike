@@ -95,14 +95,22 @@ public class DataImporter : EditorWindow
                 if (string.IsNullOrWhiteSpace(lines[i])) continue;
                 string[] cols = lines[i].TrimEnd('\r').Split('\t');
 
+                // ★ [방어막 1] 탭이 빠져서 6칸이 안 되면 여기서 걸러내고 로그를 띄웁니다!
+                if (cols.Length < 6)
+                {
+                    Debug.LogError($"[PlayerStat] {i + 1}번째 줄에 탭(Tab)이 누락된 것 같습니다! 현재 칸 수: {cols.Length}");
+                    continue; 
+                }
+
+                // ★ [방어막 2] .Trim()을 붙여서 자잘한 띄어쓰기를 전부 청소합니다.
                 PlayerStat stat = new PlayerStat
                 {
-                    id = int.Parse(cols[0]),
-                    name = cols[1],
-                    baseHp = float.Parse(cols[2]),
-                    baseAtk = float.Parse(cols[3]),
-                    baseSpeed = float.Parse(cols[4]),
-                    baseCooldown = float.Parse(cols[5])
+                    id = int.Parse(cols[0].Trim()),
+                    name = cols[1].Trim(),
+                    baseHp = float.Parse(cols[2].Trim()),
+                    baseAtk = float.Parse(cols[3].Trim()),
+                    baseSpeed = float.Parse(cols[4].Trim()),
+                    baseCooldown = float.Parse(cols[5].Trim())
                 };
                 targetContainer.PlayerStats.Add(stat);
             }
@@ -118,18 +126,27 @@ public class DataImporter : EditorWindow
             {
                 if (string.IsNullOrWhiteSpace(lines[i])) continue;
                 string[] cols = lines[i].TrimEnd('\r').Split('\t');
-
+                
+                if (cols.Length < 12) 
+                {
+                    Debug.LogWarning($"{i + 1}번째 줄 데이터 칸 수가 부족합니다! (현재 {cols.Length}칸)");
+                    continue;
+                }
+                // 2. 모든 Parse 안에 .Trim()을 추가하여 공백/엔터키 에러를 원천 차단합니다.
                 SkillData skill = new SkillData
                 {
-                    id = int.Parse(cols[0]),
-                    name = cols[1],
-                    job = (JobType)Enum.Parse(typeof(JobType), cols[2], true),
-                    enhanceType = (EnhanceType)Enum.Parse(typeof(EnhanceType), cols[3], true),
-                    baseAtk = float.Parse(cols[4]),
-                    cooldown = float.Parse(cols[5]),
-                    maxLevel = int.Parse(cols[6]),
-                    atkPerLevel = float.Parse(cols[8]), 
-                    enhancePerLevel = float.Parse(cols[9])
+                    id = int.Parse(cols[0].Trim()),
+                    name = cols[1].Trim(),
+                    job = (JobType)Enum.Parse(typeof(JobType), cols[2].Trim(), true),
+                    enhanceType = (EnhanceType)Enum.Parse(typeof(EnhanceType), cols[3].Trim(), true),
+                    baseAtk = float.Parse(cols[4].Trim()),
+                    cooldown = float.Parse(cols[5].Trim()),
+                    // cols[6] (최소레벨)은 제외
+                    maxLevel = int.Parse(cols[7].Trim()),
+                    atkPerLevel = float.Parse(cols[8].Trim()), 
+                    enhancePerLevel = float.Parse(cols[9].Trim()),
+                    description = cols[10].Trim(),
+                    prefabKey = cols[11].Trim()
                 };
                 targetContainer.SkillData.Add(skill);
             }

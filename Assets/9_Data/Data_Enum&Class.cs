@@ -69,6 +69,8 @@ public class SkillData
     public int maxLevel;
     public float atkPerLevel; // 레벨업당 공격력 증가량
     public float enhancePerLevel; // 레벨업당 강화수치(범위/개수) 증가량
+    public string description;
+    public string prefabKey;
 }
 
 // 5001~ 스탯 레벨업 구조체

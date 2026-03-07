@@ -21,7 +21,7 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
 
     private float _timer;
     private float _cooldown;
-
+    
     public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
         _sender = sender;
@@ -57,6 +57,8 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
             _pool.Release(prefab[i]); // 2. 즉시 풀로 반납하여 비활성화 대기 상태로 만듦
         }
     }
+
+  
 
     private void Update()
     {
@@ -112,5 +114,9 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
         }
 
         return closestTarget;
+    }
+    public void LevelUp(SkillData skillData)
+    {
+        
     }
 }

@@ -1,10 +1,10 @@
-int	string	enum	enum	float	float	int	int	float	float	string
-ID	스킬이름	직업	강화타입	공격력	쿨타임	최소레벨	최대레벨	레벨업당공격력증가	레벨업당강화타입증가	스킬설명
-4001	GreatSword	warrior	Range	15	4	1	5	5	2	가까운 원형 범위로 적을 공격
-4002	Dagger	warrior	Projectile	5	2	1	5	3	1	단검 투사체를 던짐
-4003	BattleAxe	warrior	Projectile	10	8	1	5	5	1	도끼가 주변을 돌며 점점 멀어짐
-4004	Hammer	warrior	Range	30	8	1	5	10	2	망치가 투사체로 날아간뒤 범위 공격을 주고 돌아옴
-4005	ReleaseMagic	Mage	Range	15	4	1	5	5	2	부채꼴 범위로 공격
-4006	FireBall	Mage	Range	30	8	1	5	10	2	투사체가 폭발하며 데미지
-4007	LightningChain	Mage	Projectile	15	4	1	5	5	1	공격이 적을 3번 튕겨다님 렙업시 횟수증가
-4008	IceMagic	Mage	Projectile	5	0	1	5	3	1	주변을 계속 돌며 타격된 적 슬로우
+int	string	enum	enum	float	float	int	int	float	float	string  string
+ID	스킬이름	직업	강화타입	공격력	쿨타임	최소레벨	최대레벨	레벨업당공격력증가	레벨업당강화타입증가	스킬설명	프리팹키
+4001	GreatSword	warrior	Range	15	4	1	5	5	2	가까운 원형 범위로  적을 공격	Skill_GreatSword
+4002	Dagger	warrior	Projectile	5	2	1	5	3	1	단검 투사체를 던짐	Skill_Dagger
+4003	BattleAxe	warrior	Projectile	10	8	1	5	5	1	도끼가 주변을 돌며 점점 멀어짐	Skill_BattleAxe
+4004	Hammer	warrior	Range	30	8	1	5	10	2	망치가 투사체로 날아간뒤 범위 공격을 주고 돌아옴	Skill_Hammer
+4005	ReleaseMagic	Mage	Range	15	4	1	5	5	2	부채꼴 범위로 공격	Skill_ReleaseMagic
+4006	FireBall	Mage	Range	30	8	1	5	10	2	투사체가 폭발하며 데미지	Skill_FireBall
+4007	LightningChain	Mage	Projectile	15	4	1	5	5	1	공격이 적을 3번 튕겨다님 렙업시 횟수증가	Skill_LightningChain
+4008	IceMagic	Mage	Projectile	5	0	1	5	3	1	주변을 계속 돌며 타격된 적 슬로우	Skill_IceMagic

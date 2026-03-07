@@ -15,6 +15,16 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 835ae3e9fe3e87d4381ae2d1c2e1298d
   m_SerializeEntries:
+  - m_GUID: 19491007cbe64144fac9d6a0efa26b37
+    m_Address: Skill_Dagger
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6e1fb6d64be6cf04e90b746c47f5557d
+    m_Address: Skill_GreatSword
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b83d2b0805be6ac4e938a234dd5fe603
     m_Address: Enemy_Rat
     m_ReadOnly: 0

@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour, IFighter
 {
+    [SerializeField] private int[] startingSkillIds;
     public Collider2D MainCollider => _collider;
     private Collider2D _collider;
     private PlayerActions _playerInput;
@@ -28,7 +29,7 @@ public class PlayerController : MonoBehaviour, IFighter
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _skillManager = GetComponentInChildren<SkillManager>();
 
-        _skillManager.Init(_combatSystem, this, dataManager);
+        _skillManager.Init(_combatSystem, this, dataManager,startingSkillIds);
     }
 
     private void Awake()
