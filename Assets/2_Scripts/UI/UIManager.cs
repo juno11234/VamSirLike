@@ -6,12 +6,14 @@ using VContainer;
 public class UIManager : MonoBehaviour
 {
     [Header("Player HP")] [SerializeField] private Slider hpSlider;
+    [SerializeField] Vector3 hpBarOffset = new Vector3(0, -1f, 0);
 
     [Header("Experience")] [SerializeField]
     private Slider expSlider;
 
     [SerializeField] private TextMeshProUGUI levelText;
-
+    private Transform _playerTransform;
+    private Camera _mainCamera;
     // VContainer가 게임 시작 시 알아서 Player와 ExpManager를 찾아 꽂아줍니다.
     [Inject]
     public void Init(PlayerController player, ExpManager expManager)
@@ -20,6 +22,9 @@ public class UIManager : MonoBehaviour
         player.OnHpChanged += UpdateHpUI;
         UpdateHpUI(player.CurrentHp, player.MaxHp);
 
+        _playerTransform = player.transform;
+        _mainCamera = Camera.main; 
+        
         // 2. 경험치 매니저 이벤트 구독 및 초기 셋업
 
         expManager.OnExpChanged += UpdateExpUI;
@@ -27,6 +32,15 @@ public class UIManager : MonoBehaviour
 
         UpdateLevelUI(expManager.CurrentLevel);
         UpdateExpUI(expManager.CurrentExp, expManager.RequiredExp);
+    }
+
+    private void LateUpdate()
+    {
+        // 플레이어의 월드 좌표(3D/2D)를 화면 픽셀 좌표(UI)로 변환
+        Vector3 screenPos = _mainCamera.WorldToScreenPoint(_playerTransform.position + hpBarOffset);
+        
+        // 체력 바 UI의 위치를 변경
+        hpSlider.transform.position = screenPos;
     }
 
     private void UpdateHpUI(float currentHp, float maxHp)

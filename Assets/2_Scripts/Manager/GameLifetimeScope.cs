@@ -45,13 +45,14 @@ public class GameInitializer : IAsyncStartable
     private const int EnemyRatId = 1001;
 
     public GameInitializer(DataManager dataManager, SpawnManager spawnManager, PlayerController playerController,
-        CombatSystem combatSystem, ExpManager expManager)
+        CombatSystem combatSystem, ExpManager expManager,UIManager uiManager)
     {
         _combatSystem = combatSystem;
         _dataManager = dataManager;
         _spawnManager = spawnManager;
         _playerController = playerController;
         _expManager = expManager;
+        _uiManager = uiManager;
     }
 
     public async UniTask StartAsync(CancellationToken cancellationToken)

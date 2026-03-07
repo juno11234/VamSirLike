@@ -48,6 +48,7 @@ public class PlayerController : MonoBehaviour, IFighter
         _itemFilter.SetLayerMask(itemLayer);
         _itemFilter.useLayerMask = true;
         _itemFilter.useTriggers = true;
+        OnHpChanged?.Invoke(CurrentHp, MaxHp);
     }
 
     private void Awake()
@@ -107,7 +108,7 @@ public class PlayerController : MonoBehaviour, IFighter
     {
         CurrentHp += healthEvent.Amount;
         if (CurrentHp > MaxHp) CurrentHp = MaxHp;
-        
+
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
     }
 
