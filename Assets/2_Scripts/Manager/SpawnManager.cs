@@ -16,7 +16,7 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] private float spawnInterval = 0.5f;
 
     private EnemyStat _enemyStat;
-    private Transform _playerTransform;
+    private PlayerController _player;
     private GameObject _enemyPrefab;
 
     private ObjectPool<EnemyController> _enemyPool;
@@ -27,12 +27,12 @@ public class SpawnManager : MonoBehaviour
     private Action<EnemyController> _returnEnemyPoolAction;
 
     // 1. Init을 UniTask로 변경하여 로딩 완료를 외부에서 대기할 수 있게 합니다.
-    public async UniTask InitAsync(Transform playerTransform, EnemyStat enemyStat, CombatSystem combatSystem,
+    public async UniTask InitAsync(PlayerController playerTransform, EnemyStat enemyStat, CombatSystem combatSystem,
         ExpManager expManager,
         CancellationToken ct = default)
     {
         _expManager = expManager;
-        _playerTransform = playerTransform;
+        _player = playerTransform;
         _enemyStat = enemyStat;
         _combatSystem = combatSystem;
 
@@ -97,24 +97,24 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        if (_playerTransform == null) return;
+        if (_player == null) return;
 
         // 플레이어 주변 360도 무작위 방향의 테두리 위치 계산
         Vector2 randomDir = Random.insideUnitCircle.normalized;
-        Vector3 spawnPos = _playerTransform.position + (Vector3)(randomDir * spawnRadius);
+        Vector3 spawnPos = _player.transform.position + (Vector3)(randomDir * spawnRadius);
 
         // 풀에서 적을 하나 꺼내고 위치 지정
         EnemyController enemy = _enemyPool.Get();
         enemy.transform.position = spawnPos;
 
         // 2. OOP 설계: 풀 전체를 넘기지 않고, '풀로 되돌아가는 행동(Action)'만 넘겨줍니다.
-        enemy.Setup(_playerTransform, _enemyStat, _returnEnemyPoolAction);
+        enemy.Setup(_player, _enemyStat, _returnEnemyPoolAction,_combatSystem);
     }
 
     // 풀에 반납하는 전용 메서드
     private void ReleaseEnemyToPool(EnemyController enemy)
     {
-        _expManager.SpawnGem(enemy.transform.position, 10f);
+        _expManager.SpawnGem(enemy.transform.position, 50f);
         _enemyPool.Release(enemy);
     }
 
