@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,6 +7,10 @@ public class PlayerController : MonoBehaviour, IFighter
 {
     [Header("Magnet Settings")] [SerializeField]
     private float magnetRadius = 4f; // 보석 획득 반경
+
+    [SerializeField] private float invincibilityDuration = 0.5f; // 무적 시간 (0.5초)
+    [SerializeField] private float flashDuration = 0.1f; // 번쩍이는 시간 (0.1초)
+
 
     [SerializeField] private LayerMask itemLayer; // 보석 전용 레이어 (인스펙터 세팅 필수)
     [SerializeField] private int[] startingSkillIds;
@@ -16,10 +21,16 @@ public class PlayerController : MonoBehaviour, IFighter
     private Vector2 _moveInput;
     private float _moveSpeed;
     private bool _isInitialized = false;
+    private bool _isInvincible = false;
     private SpriteRenderer _spriteRenderer;
     private CombatSystem _combatSystem;
+
     private SkillManager _skillManager;
 
+    // 쉐이더 최적화를 위한 프로퍼티 블록
+    private MaterialPropertyBlock _mpb;
+    private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount");
+    
     [Header("Map Boundaries")] public Vector2 minBounds = new Vector2(-10f, -10f); // 좌하단 끝 좌표
     public Vector2 maxBounds = new Vector2(10f, 10f); // 우상단 끝 좌표
 
@@ -37,7 +48,8 @@ public class PlayerController : MonoBehaviour, IFighter
         _moveSpeed = stat.baseSpeed;
         _isInitialized = true;
         _combatSystem = combatSystem;
-
+        _mpb = new MaterialPropertyBlock();
+        
         _collider = GetComponent<Collider2D>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _skillManager = GetComponentInChildren<SkillManager>();
@@ -49,6 +61,13 @@ public class PlayerController : MonoBehaviour, IFighter
         _itemFilter.useLayerMask = true;
         _itemFilter.useTriggers = true;
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
+        
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.GetPropertyBlock(_mpb);
+            _mpb.SetFloat(FlashAmountProp, 0f);
+            _spriteRenderer.SetPropertyBlock(_mpb);
+        }
     }
 
     private void Awake()
@@ -96,14 +115,53 @@ public class PlayerController : MonoBehaviour, IFighter
 
     public void TakeDamage(InGameEvent combatEvent)
     {
+        if (_isInvincible) return;
+        
         CurrentHp -= combatEvent.Amount;
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
         if (CurrentHp <= 0)
         {
             Die();
+        }else
+        {
+            // 체력이 남아있다면 피격 이펙트 및 무적 시간 발동 (비동기)
+            HitRoutineAsync().Forget();
         }
     }
+    private async UniTaskVoid HitRoutineAsync()
+    {
+        // 1. 무적 상태 ON
+        _isInvincible = true;
 
+        // 2. 쉐이더 FlashAmount를 1로 설정하여 번쩍이게 함
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.GetPropertyBlock(_mpb);
+            _mpb.SetFloat(FlashAmountProp, 0.4f);
+            _spriteRenderer.SetPropertyBlock(_mpb);
+        }
+
+        // 3. flashDuration(0.1초) 만큼 대기
+        await UniTask.Delay(TimeSpan.FromSeconds(flashDuration));
+
+        // 4. 쉐이더 FlashAmount를 0으로 되돌림 (원래 색상 복귀)
+        if (_spriteRenderer != null)
+        {
+            _spriteRenderer.GetPropertyBlock(_mpb);
+            _mpb.SetFloat(FlashAmountProp, 0f);
+            _spriteRenderer.SetPropertyBlock(_mpb);
+        }
+
+        // 5. 남은 무적 시간만큼 대기 (총 무적 시간 - 번쩍인 시간)
+        float remainingIFrame = invincibilityDuration - flashDuration;
+        if (remainingIFrame > 0)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(remainingIFrame));
+        }
+
+        // 6. 무적 상태 OFF (다시 맞을 수 있음)
+        _isInvincible = false;
+    }
     public void Heal(InGameEvent healthEvent)
     {
         CurrentHp += healthEvent.Amount;

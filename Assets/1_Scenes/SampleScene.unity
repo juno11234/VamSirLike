@@ -705,7 +705,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefabAddress: Enemy_Rat
   spawnRadius: 15
-  spawnInterval: 0.5
+  spawnInterval: 1
 --- !u!4 &1392157688
 Transform:
   m_ObjectHideFlags: 0
