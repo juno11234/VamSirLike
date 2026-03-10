@@ -55,7 +55,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  - {fileID: 2100000, guid: 7bac8b11768dd3c4486f790ea79e000d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -133,6 +133,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8f6fffa046fdf94e8a45a8d4957692b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackRange: 0.8
+  attackCooldown: 1
+  flashDuration: 0.3
 --- !u!58 &4556501605146268904
 CircleCollider2D:
   m_ObjectHideFlags: 0

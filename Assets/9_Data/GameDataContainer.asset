@@ -61,7 +61,7 @@ MonoBehaviour:
     name: GreatSword
     job: 0
     enhanceType: 0
-    baseAtk: 15
+    baseAtk: 9
     cooldown: 4
     maxLevel: 5
     atkPerLevel: 5
