@@ -52,11 +52,6 @@ public class EnemyController : MonoBehaviour, IFighter
         Vector3 offset = _targetPlayer.transform.position - transform.position;
         float distanceSqr = offset.sqrMagnitude;
 
-        // if (offset.x != 0)
-        // {
-        //     _spriteRenderer.flipX = offset.x > 0; 
-        // }
-
         // 2. 사거리 안으로 들어왔다면?
         if (distanceSqr <= attackRange * attackRange)
         {

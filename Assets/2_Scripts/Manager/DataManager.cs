@@ -62,11 +62,25 @@ public class DataManager : IDisposable
 
     public SkillData GetSkillData(int id)
     {
-        if(_playerSkillDict.TryGetValue(id, out var skillData))
+        if (_playerSkillDict.TryGetValue(id, out var skillData))
             return skillData;
-        
+
         Debug.LogError($"ID {id}에 해당하는 스킬 데이터가 없습니다!");
         return null;
+    }
+
+    public List<SkillData> GetSkillList()
+    {
+        List<SkillData> skillList = new List<SkillData>();
+        foreach (var skills in _container.SkillData)
+        {
+            if (skills.job is JobType.Warrior)
+            {
+                skillList.Add(skills);
+            }
+        }
+
+        return skillList;
     }
 
     // VContainer의 생명주기가 끝날 때(게임 종료, 씬 전환 등) 자동으로 호출됩니다.
