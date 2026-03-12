@@ -8,6 +8,9 @@ public class CircleAttack : MonoBehaviour, ISkill
     [SerializeField] private LayerMask enemyLayer; // 몬스터만 골라내기 위한 레이어 마스크
     [SerializeField] private ParticleSystem attackEffect;
 
+    public int CurrentLevel => _currentLevel;
+
+    private int _currentLevel = 1;
     private float _timer;
     private float _damage = 5f; // 한 번에 입힐 데미지
     private float _cooldown = 1f; // 몇 초마다 타격할지 (틱)
@@ -33,13 +36,18 @@ public class CircleAttack : MonoBehaviour, ISkill
 
     private void Start()
     {
-        float diameter = (radius * 2f) + (radius * 0.5f);
-        attackEffect.transform.localScale = new Vector3(diameter, diameter, 1f);
+        EffectScale();
 
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer);
         _filter.useLayerMask = true;
         _filter.useTriggers = true;
+    }
+
+    private void EffectScale()
+    {
+        float diameter = (radius * 2f) + (radius * 0.5f);
+        attackEffect.transform.localScale = new Vector3(diameter, diameter, 1f);
     }
 
     private void Update()
@@ -74,9 +82,15 @@ public class CircleAttack : MonoBehaviour, ISkill
             _combatSystem.AddInGameEvent(evt);
         }
     }
-    
+
     public void LevelUp(SkillData skillData)
     {
-        
+        if (_currentLevel >= _data.maxLevel) return;
+        _currentLevel++;
+        _damage += _data.atkPerLevel;
+        radius += _data.enhancePerLevel * 0.25f;
+        EffectScale();
+        _cooldown -= 0.5f;
+        Debug.Log(_currentLevel);
     }
 }

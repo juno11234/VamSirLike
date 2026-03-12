@@ -21,7 +21,9 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
 
     private float _timer;
     private float _cooldown;
-    
+
+    public int CurrentLevel { get; }
+
     public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
         _sender = sender;

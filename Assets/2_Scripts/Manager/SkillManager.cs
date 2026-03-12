@@ -5,6 +5,7 @@ using UnityEngine.AddressableAssets;
 
 public interface ISkill
 {
+    int CurrentLevel { get; }
     void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData);
     void LevelUp(SkillData skillData);
 }

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer;
+using Random = UnityEngine.Random;
 
 public class LevelUpUI : MonoBehaviour
 {
@@ -10,6 +12,7 @@ public class LevelUpUI : MonoBehaviour
 
     private SkillManager _skillManager;
     private DataManager _dataManager;
+    private ExpManager _expManager;
 
     [Inject]
     public void Init(ExpManager expManager, PlayerController player, DataManager dataManager)
@@ -19,10 +22,9 @@ public class LevelUpUI : MonoBehaviour
         _skillManager = player.GetComponentInChildren<SkillManager>();
 
         // 레벨업 이벤트 구독!
-        if (expManager != null)
-        {
-            expManager.OnLevelUp += ShowLevelUpUI;
-        }
+        _expManager = expManager;
+        _expManager.OnLevelUp += ShowLevelUpUI;
+
 
         panel.SetActive(false);
     }
@@ -65,5 +67,10 @@ public class LevelUpUI : MonoBehaviour
 
         // 2. 스킬 매니저에게 해당 스킬 추가/레벨업 명령! (비동기)
         _skillManager.AddOrLevelUpWeaponAsync(skillId).Forget();
+    }
+
+    private void OnDestroy()
+    {
+        _expManager.OnLevelUp -= ShowLevelUpUI;
     }
 }
