@@ -8,7 +8,7 @@ public class ExpItem : MonoBehaviour
 
     private Transform _target;
     private bool _isFlying = false;
-    private float _flySpeed = 15f; // 보석이 날아오는 속도
+    private float _flySpeed = 15f; 
 
     public void Init(float amount, Action<ExpItem> onCollectCallback)
     {

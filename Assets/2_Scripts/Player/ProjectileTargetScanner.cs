@@ -1,13 +1,15 @@
+using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class ProjectileTargetScanner : MonoBehaviour,ISkill
+public class ProjectileTargetScanner : MonoBehaviour, ISkill
 {
-    [Header("Weapon Settings")] [SerializeField]
-    private ProjectileAttack projectilePrefab;
-
+    [Header("Weapon Settings")]
+    [SerializeField] private ProjectileAttack projectilePrefab;
     [SerializeField] private float scanRadius = 10f; // 적 탐색 범위
     [SerializeField] private LayerMask enemyLayer;
+    [SerializeField] private float fireDelay = 0.1f; // 연사 시 투사체 간의 발사 간격 (0.1초)
 
     private ObjectPool<ProjectileAttack> _pool;
     private Transform _projectileContainer;
@@ -21,8 +23,10 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
 
     private float _timer;
     private float _cooldown;
+    private float _damage;
+    private int _projectileCount = 1;
 
-    public int CurrentLevel { get; }
+    public int CurrentLevel { get; private set; }
 
     public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
@@ -31,6 +35,10 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
         _skillData = skillData;
 
         _cooldown = _skillData.cooldown;
+        _damage = _skillData.baseAtk;
+        CurrentLevel = 1;
+        _projectileCount = 1;
+
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer);
         _filter.useLayerMask = true;
@@ -59,33 +67,35 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
             _pool.Release(prefab[i]); // 2. 즉시 풀로 반납하여 비활성화 대기 상태로 만듦
         }
     }
-    
+
     private void Update()
     {
         _timer += Time.deltaTime;
         if (_timer >= _cooldown)
         {
-            Fire();
+            FireAsync().Forget();
             _timer -= _cooldown;
         }
     }
 
-    private void Fire()
+    private async UniTaskVoid FireAsync()
     {
-        Transform target = FindClosestEnemy();
-        if (target == null) return; // 범위 내에 적이 없으면 발사 안 함
+        for (int i = 0; i < _projectileCount; i++)
+        {
+            Transform target = FindClosestEnemy();
 
-        // 방향 벡터 계산
-        Vector2 direction = (target.position - transform.position).normalized;
+            if (target == null) break;
 
-        // 풀에서 꺼내기
-        ProjectileAttack projectile = _pool.Get();
+            Vector2 direction = (target.position - transform.position).normalized;
+            ProjectileAttack projectile = _pool.Get();
+            projectile.transform.position = transform.position;
+            projectile.Init(_combatSystem, _sender, direction, _damage, ReleaseProjectile);
 
-        // 꺼낸 후 반드시 발사대 위치로 초기화
-        projectile.transform.position = transform.position;
-
-        // 투사체 초기화
-        projectile.Init(_combatSystem, _sender, direction, _skillData.baseAtk, ReleaseProjectile);
+            if (i < _projectileCount - 1)
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(fireDelay));
+            }
+        }
     }
 
     private void ReleaseProjectile(ProjectileAttack projectile)
@@ -115,8 +125,11 @@ public class ProjectileTargetScanner : MonoBehaviour,ISkill
 
         return closestTarget;
     }
+
     public void LevelUp(SkillData skillData)
     {
-        
+        _damage += _skillData.atkPerLevel;
+        CurrentLevel++;
+        _projectileCount++;
     }
 }

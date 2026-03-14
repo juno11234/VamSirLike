@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,10 +11,16 @@ public class UIManager : MonoBehaviour
 
     [Header("Experience")] [SerializeField]
     private Slider expSlider;
-
     [SerializeField] private TextMeshProUGUI levelText;
+
+    [Header("Play Time")]
+    [SerializeField] private TextMeshProUGUI timeText;
+    private float _playTime;
+
     private Transform _playerTransform;
     private Camera _mainCamera;
+    private ExpManager _expManager;
+
     // VContainer가 게임 시작 시 알아서 Player와 ExpManager를 찾아 꽂아줍니다.
     [Inject]
     public void Init(PlayerController player, ExpManager expManager)
@@ -23,22 +30,34 @@ public class UIManager : MonoBehaviour
         UpdateHpUI(player.CurrentHp, player.MaxHp);
 
         _playerTransform = player.transform;
-        _mainCamera = Camera.main; 
-        
+        _mainCamera = Camera.main;
+        _expManager = expManager;
         // 2. 경험치 매니저 이벤트 구독 및 초기 셋업
 
-        expManager.OnExpChanged += UpdateExpUI;
-        expManager.OnLevelUp += UpdateLevelUI;
+        _expManager.OnExpChanged += UpdateExpUI;
+        _expManager.OnLevelUp += UpdateLevelUI;
 
-        UpdateLevelUI(expManager.CurrentLevel);
-        UpdateExpUI(expManager.CurrentExp, expManager.RequiredExp);
+        UpdateLevelUI(_expManager.CurrentLevel);
+        UpdateExpUI(_expManager.CurrentExp, _expManager.RequiredExp);
+    }
+
+    private void Update()
+    {
+        // 1. 플레이 타임 누적 (Time.deltaTime은 timeScale이 0이면 더해지지 않습니다!)
+        _playTime += Time.deltaTime;
+
+        // 2. 누적된 초(float)를 분(Minute)과 초(Second)로 변환
+        int minutes = Mathf.FloorToInt(_playTime / 60f);
+        int seconds = Mathf.FloorToInt(_playTime % 60f);
+        
+        timeText.text = $"{minutes:00}:{seconds:00}";
     }
 
     private void LateUpdate()
     {
         // 플레이어의 월드 좌표(3D/2D)를 화면 픽셀 좌표(UI)로 변환
         Vector3 screenPos = _mainCamera.WorldToScreenPoint(_playerTransform.position + hpBarOffset);
-        
+
         // 체력 바 UI의 위치를 변경
         hpSlider.transform.position = screenPos;
     }
@@ -63,6 +82,7 @@ public class UIManager : MonoBehaviour
     // 오브젝트가 파괴될 때 이벤트 구독 해제 (메모리 누수 방지)
     private void OnDestroy()
     {
-        // 실제 게임에서는 객체가 파괴될 시점을 고려해 -= 로 구독을 해제해 주는 것이 안전합니다.
+        _expManager.OnExpChanged -= UpdateExpUI;
+        _expManager.OnLevelUp -= UpdateLevelUI;
     }
 }
