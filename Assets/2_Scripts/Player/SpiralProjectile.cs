@@ -46,10 +46,7 @@ public class SpiralProjectile : MonoBehaviour
         // --- [추가된 회전 로직] ---
         // _angle은 라디안(Radian) 값이므로 우리가 아는 도(Degree) 단위로 변환해 줍니다.
         float angleDeg = _angle * Mathf.Rad2Deg;
-
-        // 투사체가 날아가는 궤적 방향(접선 방향)을 바라보게 회전시킵니다.
-        // 만약 스프라이트 이미지가 기본적으로 '오른쪽'을 향해 그려져 있다면 + 90f 를 해주시고,
-        // 기본적으로 '위쪽'을 향해 그려져 있다면 + 0f 로 두시면 됩니다.
+        
         transform.rotation = Quaternion.Euler(0, 0, angleDeg - 90f); 
         // -----------------------
 

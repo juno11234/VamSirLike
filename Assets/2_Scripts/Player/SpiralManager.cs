@@ -40,7 +40,7 @@ public class SpiralManager : MonoBehaviour, ISkill
             actionOnRelease: (obj) => obj.gameObject.SetActive(false),
             actionOnDestroy: (obj) => Destroy(obj.gameObject),
             defaultCapacity: 10,
-            maxSize: 10 // 꽤 많이 스폰되므로 넉넉하게
+            maxSize: 20 
         );
 
         SpiralProjectile[] prefab = new SpiralProjectile[20];
