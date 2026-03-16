@@ -25,6 +25,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4264d12123aa22a42b50643d845eefad
+    m_Address: Skill_Hammer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6e1fb6d64be6cf04e90b746c47f5557d
     m_Address: Skill_GreatSword
     m_ReadOnly: 0
