@@ -19,6 +19,7 @@ public class BoomerangManager : MonoBehaviour, ISkill
 
     private float _timer;
     private float _cooldown;
+    private float _damage;
 
     public int CurrentLevel { get; private set; }
 
@@ -30,6 +31,7 @@ public class BoomerangManager : MonoBehaviour, ISkill
 
         CurrentLevel = 1;
         _cooldown = _skillData.cooldown;
+        _damage = _skillData.baseAtk;
 
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer);
@@ -44,8 +46,21 @@ public class BoomerangManager : MonoBehaviour, ISkill
             actionOnRelease: (obj) => obj.gameObject.SetActive(false),
             actionOnDestroy: (obj) => Destroy(obj.gameObject),
             defaultCapacity: 10,
-            maxSize: 30
+            maxSize: 10
         );
+
+        BoomerangProjectile[] prefab = new BoomerangProjectile[20];
+        for (int i = 0; i < 10; i++)
+        {
+            prefab[i] = _pool.Get();
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            _pool.Release(prefab[i]);
+        }
+
+        _timer += _cooldown;
     }
 
     private void Update()
@@ -101,8 +116,8 @@ public class BoomerangManager : MonoBehaviour, ISkill
 
     public void LevelUp(SkillData skillData)
     {
-        _skillData = skillData;
-        _cooldown = _skillData.cooldown;
+        _damage += _skillData.atkPerLevel;
+        _cooldown -= _skillData.enhancePerLevel;
         CurrentLevel++;
     }
 }

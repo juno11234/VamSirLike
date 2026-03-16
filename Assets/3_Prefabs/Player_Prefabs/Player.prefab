@@ -52,7 +52,7 @@ MonoBehaviour:
   itemLayer:
     serializedVersion: 2
     m_Bits: 128
-  startingSkillIds: a10f0000a20f0000
+  startingSkillIds: a10f0000
   minBounds: {x: -19, y: -19}
   maxBounds: {x: 19, y: 19}
 --- !u!1 &5779843256806268537

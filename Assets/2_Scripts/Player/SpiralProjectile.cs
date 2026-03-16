@@ -1,10 +1,11 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SpiralProjectile : MonoBehaviour
 {
     [SerializeField] private LayerMask enemyLayer;
-    
+
     private float _angle;
     private float _radius;
     private Transform _center; // 회전의 중심 (플레이어)
@@ -18,7 +19,9 @@ public class SpiralProjectile : MonoBehaviour
 
     private Collider2D[] _results = new Collider2D[10];
     private ContactFilter2D _filter;
-    private float _hitRadius = 0.5f; // 투사체 크기
+    private float _hitRadius = 0.5f;
+
+    private HashSet<IFighter> _hitTargets = new HashSet<IFighter>();
 
     // 풀에서 꺼낼 때마다 호출될 초기화 함수
     public void Init(CombatSystem combatSystem, IFighter sender, Transform center, float startAngle, float angleSpeed,
@@ -36,6 +39,8 @@ public class SpiralProjectile : MonoBehaviour
         _radius = 0f; // 중심(0)에서부터 출발
         _onRelease = onRelease;
 
+        _hitTargets.Clear();
+        
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer); // 몬스터 레이어만!
         _filter.useLayerMask = true;
@@ -65,8 +70,9 @@ public class SpiralProjectile : MonoBehaviour
         for (int i = 0; i < hitCount; i++)
         {
             IFighter targetMonster = _combatSystem.GetMonster(_results[i]);
-            if (targetMonster != null)
+            if (targetMonster != null&& _hitTargets.Contains(targetMonster) == false)
             {
+                _hitTargets.Add(targetMonster);
                 InGameEvent evt = new InGameEvent
                 {
                     Type = InGameEvent.EventType.Combat,

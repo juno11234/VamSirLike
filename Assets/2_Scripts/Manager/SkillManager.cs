@@ -42,7 +42,6 @@ public class SkillManager : MonoBehaviour
         if (_activeWeapons.TryGetValue(skillId, out ISkill existingWeapon))
         {
             existingWeapon.LevelUp(data); // 레벨업 로직 호출
-            Debug.Log($"[SkillManager] 스킬 {data.name} 레벨업!");
             return;
         }
 
@@ -54,6 +53,5 @@ public class SkillManager : MonoBehaviour
         newWeapon.Init(_combatSystem, _sender, data);
 
         _activeWeapons.Add(skillId, newWeapon);
-        Debug.Log($"[SkillManager] 신규 스킬 {data.name} 획득!");
     }
 }

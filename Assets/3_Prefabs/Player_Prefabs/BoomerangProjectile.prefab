@@ -134,5 +134,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flySpeed: 10
   returnSpeed: 15
-  maxDistance: 8
+  maxDistance: 6
   spinSpeed: 1000
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 64

@@ -15,7 +15,7 @@ MonoBehaviour:
   EnemyStats:
   - id: 1001
     name: Rat
-    hp: 10
+    hp: 9
     atk: 10
     speed: 5
     attackType: 0
@@ -96,11 +96,11 @@ MonoBehaviour:
     name: Hammer
     job: 0
     enhanceType: 0
-    baseAtk: 30
+    baseAtk: 15
     cooldown: 8
     maxLevel: 5
-    atkPerLevel: 10
-    enhancePerLevel: 2
+    atkPerLevel: 5
+    enhancePerLevel: 1
     description: "\uB9DD\uCE58\uAC00 \uD22C\uC0AC\uCCB4\uB85C \uB0A0\uC544\uAC04\uB4A4
       \uBC94\uC704 \uACF5\uACA9\uC744 \uC8FC\uACE0 \uB3CC\uC544\uC634"
     prefabKey: Skill_Hammer

@@ -66,7 +66,6 @@ public class ExpManager : MonoBehaviour
             RequiredExp = CalculateNextRequiredExp(CurrentLevel);
             
             OnLevelUp?.Invoke(CurrentLevel); // 레벨업 이벤트 발생!
-            Debug.Log($"[ExpManager] 레벨업! 현재 레벨: {CurrentLevel}");
         }
 
         OnExpChanged?.Invoke(CurrentExp, RequiredExp);
