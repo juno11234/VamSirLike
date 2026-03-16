@@ -1,37 +1,23 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class BoomerangManager : MonoBehaviour, ISkill
+public class BoomerangManager : SkillBase
 {
     [Header("Skill Settings")]
     [SerializeField] private BoomerangProjectile boomerangPrefab;
     [SerializeField] private float scanRadius = 12f;
-    [SerializeField] private LayerMask enemyLayer;
 
     private ObjectPool<BoomerangProjectile> _pool;
     private Transform _projectileContainer;
-    private CombatSystem _combatSystem;
-    private SkillData _skillData;
-    private IFighter _sender;
 
     private Collider2D[] _results = new Collider2D[100];
     private ContactFilter2D _filter;
 
     private float _timer;
-    private float _cooldown;
-    private float _damage;
 
-    public int CurrentLevel { get; private set; }
-
-    public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
+    public override void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
-        _sender = sender;
-        _combatSystem = combatSystem;
-        _skillData = skillData;
-
-        CurrentLevel = 1;
-        _cooldown = _skillData.cooldown;
-        _damage = _skillData.baseAtk;
+        base.Init(combatSystem, sender, skillData);
 
         _filter = new ContactFilter2D();
         _filter.SetLayerMask(enemyLayer);
@@ -60,32 +46,39 @@ public class BoomerangManager : MonoBehaviour, ISkill
             _pool.Release(prefab[i]);
         }
 
-        _timer += _cooldown;
+        _timer += Cooldown;
     }
 
     private void Update()
     {
         _timer += Time.deltaTime;
-        if (_timer >= _cooldown)
+        if (_timer >= Cooldown)
         {
             Fire();
-            _timer -= _cooldown;
+            _timer -= Cooldown;
         }
     }
 
     private void Fire()
     {
         Transform target = FindClosestEnemy();
-        // 적이 없으면 랜덤한 방향으로 던지도록 처리해도 좋습니다.
-        if (target == null) return;
-
-        Vector3 direction = (target.position - transform.position).normalized;
+        Vector3 direction;
+        if (target != null)
+        {
+            direction = (target.position - transform.position).normalized;
+        }
+        else
+        {
+            // 적이 없으면 허공에 랜덤으로 던짐! (증발 방지)
+            float randomAngle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+            direction = new Vector3(Mathf.Cos(randomAngle), Mathf.Sin(randomAngle), 0);
+        }
 
         BoomerangProjectile proj = _pool.Get();
         proj.transform.position = transform.position;
 
         // [중요] 플레이어의 Transform을 같이 넘겨줍니다!
-        proj.Init(_combatSystem, _sender, transform, direction, _skillData.baseAtk, ReleaseProjectile);
+        proj.Init(CombatSystem, Sender, transform, direction, Damage, ReleaseProjectile);
     }
 
     private void ReleaseProjectile(BoomerangProjectile proj)
@@ -112,12 +105,5 @@ public class BoomerangManager : MonoBehaviour, ISkill
         }
 
         return closestTarget;
-    }
-
-    public void LevelUp(SkillData skillData)
-    {
-        _damage += _skillData.atkPerLevel;
-        _cooldown -= _skillData.enhancePerLevel;
-        CurrentLevel++;
     }
 }

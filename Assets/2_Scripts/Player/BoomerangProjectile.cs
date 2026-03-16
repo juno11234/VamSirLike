@@ -65,13 +65,11 @@ public class BoomerangProjectile : MonoBehaviour
         {
             // 타겟 방향으로 직진
             transform.position += _flyDirection * (flySpeed * Time.deltaTime);
-
-            // 시작 지점에서 최대 거리 이상 멀어졌다면 돌아오는 상태로 전환!
-            if (Vector3.Distance(_startPos, transform.position) >= maxDistance)
+            float currentDistSqr = (_startPos - transform.position).sqrMagnitude;
+            if (currentDistSqr >= maxDistance * maxDistance) 
             {
                 _currentState = State.Returning;
-
-                _hitTargets.Clear();
+                _hitTargets.Clear(); // 돌아올 때 다시 때리기 위해 초기화 (최고의 로직!)
             }
         }
         else if (_currentState == State.Returning)
@@ -86,9 +84,9 @@ public class BoomerangProjectile : MonoBehaviour
             // 플레이어의 현재 위치를 향해 방향을 계속 틀면서 이동 (유도탄)
             Vector3 returnDir = (_playerTransform.position - transform.position).normalized;
             transform.position += returnDir * (returnSpeed * Time.deltaTime);
-
+            
             // 플레이어와 충분히 가까워지면(잡으면) 풀로 반납
-            if (Vector3.Distance(transform.position, _playerTransform.position) < 0.5f)
+            if ((transform.position - _playerTransform.position).sqrMagnitude < 0.25f)
             {
                 _onRelease?.Invoke(this);
             }

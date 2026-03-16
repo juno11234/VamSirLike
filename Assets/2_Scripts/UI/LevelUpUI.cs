@@ -50,7 +50,8 @@ public class LevelUpUI : MonoBehaviour
             {
                 buttons[i].gameObject.SetActive(true);
                 // 버튼 클릭 시 OnSkillSelected 함수가 실행되도록 연결
-                buttons[i].Init(allSkills[i], OnSkillSelected);
+                SkillBase currentSkill = _skillManager.GetCurrentSkillData(allSkills[i].id);
+                buttons[i].Init(allSkills[i], currentSkill, OnSkillSelected);
             }
             else
             {

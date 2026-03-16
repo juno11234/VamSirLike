@@ -3,40 +3,25 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class ProjectileTargetScanner : MonoBehaviour, ISkill
+public class ProjectileTargetScanner : SkillBase
 {
     [Header("Weapon Settings")]
     [SerializeField] private ProjectileAttack projectilePrefab;
     [SerializeField] private float scanRadius = 10f; // 적 탐색 범위
-    [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float fireDelay = 0.1f; // 연사 시 투사체 간의 발사 간격 (0.1초)
 
     private ObjectPool<ProjectileAttack> _pool;
     private Transform _projectileContainer;
-    private CombatSystem _combatSystem;
-    private SkillData _skillData;
-    private IFighter _sender;
 
     private Collider2D[] _results = new Collider2D[100];
     private ContactFilter2D _filter;
 
-
     private float _timer;
-    private float _cooldown;
-    private float _damage;
     private int _projectileCount = 1;
 
-    public int CurrentLevel { get; private set; }
-
-    public void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
+    public override void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
-        _sender = sender;
-        _combatSystem = combatSystem;
-        _skillData = skillData;
-
-        _cooldown = _skillData.cooldown;
-        _damage = _skillData.baseAtk;
-        CurrentLevel = 1;
+        base.Init(combatSystem, sender, skillData);
         _projectileCount = 1;
 
         _filter = new ContactFilter2D();
@@ -71,10 +56,10 @@ public class ProjectileTargetScanner : MonoBehaviour, ISkill
     private void Update()
     {
         _timer += Time.deltaTime;
-        if (_timer >= _cooldown)
+        if (_timer >= Cooldown)
         {
             FireAsync().Forget();
-            _timer -= _cooldown;
+            _timer -= Cooldown;
         }
     }
 
@@ -89,7 +74,7 @@ public class ProjectileTargetScanner : MonoBehaviour, ISkill
             Vector2 direction = (target.position - transform.position).normalized;
             ProjectileAttack projectile = _pool.Get();
             projectile.transform.position = transform.position;
-            projectile.Init(_combatSystem, _sender, direction, _damage, ReleaseProjectile);
+            projectile.Init(CombatSystem, Sender, direction, Damage, ReleaseProjectile);
 
             if (i < _projectileCount - 1)
             {
@@ -126,10 +111,9 @@ public class ProjectileTargetScanner : MonoBehaviour, ISkill
         return closestTarget;
     }
 
-    public void LevelUp(SkillData skillData)
+    public override void LevelUp(SkillData skillData)
     {
-        _damage += _skillData.atkPerLevel;
-        CurrentLevel++;
+        base.LevelUp(skillData);
         _projectileCount++;
     }
 }
