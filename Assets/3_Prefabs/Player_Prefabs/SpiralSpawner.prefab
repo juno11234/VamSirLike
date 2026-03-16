@@ -47,5 +47,5 @@ MonoBehaviour:
   projectilePrefab: {fileID: 6482798060293470737, guid: afd2119510436ad4da1d9b1d7df650f3, type: 3}
   cooldown: 5
   angleSpeed: 5
-  expandSpeed: 1
+  expandSpeed: 2
   fireDelay: 0.5
