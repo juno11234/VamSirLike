@@ -18,9 +18,26 @@ public class SkillSelectButton : MonoBehaviour
     {
         _skillId = data.id;
         _currentSkill = currentSkill;
-        
-        nameText.text = data.name; // 스킬 이름 
-        descText.text = $"current Damage: {data.baseAtk}\n current Cooltime: {data.cooldown} second"; // 스킬 설명 조립
+
+        nameText.text = data.name; // 스킬 이름
+        if (currentSkill == null)
+        {
+            descText.text = $"Level 1\n " + "\n" +
+                            $"Damage: {data.baseAtk}\n " + "\n" +
+                            $"CoolTime: {data.cooldown} second";
+        }
+        else
+        {
+            CurrentData currentData = currentSkill.GetCurrentData();
+            descText.text =
+                $"currentLevel {currentData.level}\n" +
+                $"nextLevel {currentData.level + 1}\n" + "\n" +
+                $"currentDamage: {currentData.damage}\n" +
+                $"nextDamage: {currentData.damage + data.atkPerLevel}\n" + "\n" +
+                $"currentCoolTime: {currentData.cooldown} sec\n" +
+                $"nextCoolTime: {currentData.cooldown - 0.5f} sec";
+        }
+
 
         _onClickCallback = onClick;
 

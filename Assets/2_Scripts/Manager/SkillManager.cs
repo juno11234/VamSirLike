@@ -3,9 +3,26 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
+public struct CurrentData
+{
+    public int level;
+    public float damage;
+    public float cooldown;
+    public bool isProjectile;
+
+    public CurrentData(int level, float damage, float cooldown, bool isProjectile)
+    {
+        this.level = level;
+        this.damage = damage;
+        this.cooldown = cooldown;
+        this.isProjectile = isProjectile;
+    }
+}
+
 public abstract class SkillBase : MonoBehaviour
 {
     [SerializeField] protected LayerMask enemyLayer; // 몬스터만 골라내기 위한 레이어 마스크
+
     protected CombatSystem CombatSystem;
     protected IFighter Sender;
     protected SkillData SkillData;
@@ -32,6 +49,13 @@ public abstract class SkillBase : MonoBehaviour
         Damage += SkillData.atkPerLevel;
         Cooldown = Mathf.Max(0.1f, Cooldown - 0.5f);
         CurrentLevel++;
+    }
+
+    public CurrentData GetCurrentData()
+    {
+        bool isProjectile = SkillData.enhanceType == EnhanceType.Projectile;
+
+        return new CurrentData(CurrentLevel, Damage, Cooldown, isProjectile);
     }
 }
 
