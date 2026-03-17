@@ -11,13 +11,11 @@ public class SkillSelectButton : MonoBehaviour
     [SerializeField] private Button button;
     private int _skillId;
     private Action<int> _onClickCallback;
-    private SkillBase _currentSkill;
 
     // UI 매니저가 이 버튼에 스킬 데이터를 꽂아줄 때 호출
     public void Init(SkillData data, SkillBase currentSkill, Action<int> onClick)
     {
         _skillId = data.id;
-        _currentSkill = currentSkill;
 
         nameText.text = data.name; // 스킬 이름
         if (currentSkill == null)
