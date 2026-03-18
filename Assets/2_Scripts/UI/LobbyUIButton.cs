@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class LobbyUIButton : MonoBehaviour
 {
     [SerializeField] private string _sceneName;
-    
+
     public void ChangeScene()
     {
         // 씬 이름이 비어있는지 확인 (예외 처리)
@@ -13,6 +13,11 @@ public class LobbyUIButton : MonoBehaviour
         {
             Debug.LogWarning("씬 이름이 설정되지 않았습니다!");
             return;
+        }
+
+        if (Time.timeScale == 0)
+        {
+            Time.timeScale = 1;
         }
 
         // 실제 씬 전환 실행

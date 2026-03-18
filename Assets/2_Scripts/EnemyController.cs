@@ -13,11 +13,11 @@ public class EnemyController : MonoBehaviour, IFighter
     private float _attackTimer;
     public Collider2D MainCollider => _collider2D;
     private Collider2D _collider2D;
-    
+
     private SpriteRenderer _spriteRenderer;
     private CombatSystem _combatSystem;
     private PlayerController _targetPlayer;
-    
+
     private EnemyStat _stat;
     private float _currentHp;
     private Action<EnemyController> _onDeathCallback;
@@ -25,6 +25,8 @@ public class EnemyController : MonoBehaviour, IFighter
     // 쉐이더 최적화를 위한 프로퍼티 블록
     private MaterialPropertyBlock _mpb;
     private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount");
+
+    private bool _isDead = false;
 
     private void Awake()
     {
@@ -43,6 +45,8 @@ public class EnemyController : MonoBehaviour, IFighter
         _currentHp = _stat.hp;
         _combatSystem = combatSystem;
         _attackTimer = attackCooldown;
+
+        _isDead = false;
 
         ResetFlashEffect();
     }
@@ -94,9 +98,12 @@ public class EnemyController : MonoBehaviour, IFighter
 
     public void TakeDamage(InGameEvent combatEvent)
     {
+        if (_isDead) return;
+        
         _currentHp -= combatEvent.Amount;
         if (_currentHp <= 0)
         {
+            _isDead = true;
             Die();
         }
         else

@@ -30,13 +30,14 @@ public class PlayerController : MonoBehaviour, IFighter
     // 쉐이더 최적화를 위한 프로퍼티 블록
     private MaterialPropertyBlock _mpb;
     private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount");
-    
+
     [Header("Map Boundaries")] public Vector2 minBounds = new Vector2(-10f, -10f); // 좌하단 끝 좌표
     public Vector2 maxBounds = new Vector2(10f, 10f); // 우상단 끝 좌표
 
     public float MaxHp { get; private set; }
     public float CurrentHp { get; private set; }
     public event Action<float, float> OnHpChanged;
+    public event Action OnDeath;
 
     private Collider2D[] _itemResults = new Collider2D[20];
     private ContactFilter2D _itemFilter;
@@ -49,7 +50,7 @@ public class PlayerController : MonoBehaviour, IFighter
         _isInitialized = true;
         _combatSystem = combatSystem;
         _mpb = new MaterialPropertyBlock();
-        
+
         _collider = GetComponent<Collider2D>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         _skillManager = GetComponentInChildren<SkillManager>();
@@ -61,7 +62,7 @@ public class PlayerController : MonoBehaviour, IFighter
         _itemFilter.useLayerMask = true;
         _itemFilter.useTriggers = true;
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
-        
+
         if (_spriteRenderer != null)
         {
             _spriteRenderer.GetPropertyBlock(_mpb);
@@ -116,18 +117,20 @@ public class PlayerController : MonoBehaviour, IFighter
     public void TakeDamage(InGameEvent combatEvent)
     {
         if (_isInvincible) return;
-        
+
         CurrentHp -= combatEvent.Amount;
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
         if (CurrentHp <= 0)
         {
             Die();
-        }else
+        }
+        else
         {
             // 체력이 남아있다면 피격 이펙트 및 무적 시간 발동 (비동기)
             HitRoutineAsync().Forget();
         }
     }
+
     private async UniTaskVoid HitRoutineAsync()
     {
         // 1. 무적 상태 ON
@@ -162,6 +165,7 @@ public class PlayerController : MonoBehaviour, IFighter
         // 6. 무적 상태 OFF (다시 맞을 수 있음)
         _isInvincible = false;
     }
+
     public void Heal(InGameEvent healthEvent)
     {
         CurrentHp += healthEvent.Amount;
@@ -172,6 +176,6 @@ public class PlayerController : MonoBehaviour, IFighter
 
     private void Die()
     {
-        Debug.Log("플레이어 사망!");
+        OnDeath?.Invoke();
     }
 }

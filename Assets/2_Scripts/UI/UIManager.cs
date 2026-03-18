@@ -17,6 +17,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timeText;
     private float _playTime;
 
+    [Header("GameOver UI")]
+    [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private TextMeshProUGUI scoreText;
+
     private Transform _playerTransform;
     private Camera _mainCamera;
     private ExpManager _expManager;
@@ -27,6 +31,7 @@ public class UIManager : MonoBehaviour
     {
         // 1. 플레이어 HP 이벤트 구독 및 초기 셋업
         player.OnHpChanged += UpdateHpUI;
+        player.OnDeath += GameOver;
         UpdateHpUI(player.CurrentHp, player.MaxHp);
 
         _playerTransform = player.transform;
@@ -39,6 +44,7 @@ public class UIManager : MonoBehaviour
 
         UpdateLevelUI(_expManager.CurrentLevel);
         UpdateExpUI(_expManager.CurrentExp, _expManager.RequiredExp);
+        gameOverUI.SetActive(false);
     }
 
     private void Update()
@@ -49,7 +55,7 @@ public class UIManager : MonoBehaviour
         // 2. 누적된 초(float)를 분(Minute)과 초(Second)로 변환
         int minutes = Mathf.FloorToInt(_playTime / 60f);
         int seconds = Mathf.FloorToInt(_playTime % 60f);
-        
+
         timeText.text = $"{minutes:00}:{seconds:00}";
     }
 
@@ -77,6 +83,15 @@ public class UIManager : MonoBehaviour
     private void UpdateLevelUI(int level)
     {
         levelText.text = $"Lv. {level}";
+    }
+
+    private void GameOver()
+    {
+        Time.timeScale = 0;
+        int minutes = Mathf.FloorToInt(_playTime / 60f);
+        int seconds = Mathf.FloorToInt(_playTime % 60f);
+        gameOverUI.SetActive(true);
+        scoreText.text = $"Score: {_expManager.Score}  Time: {minutes:00}:{seconds:00} ";
     }
 
     // 오브젝트가 파괴될 때 이벤트 구독 해제 (메모리 누수 방지)

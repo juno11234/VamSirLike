@@ -74,7 +74,7 @@ MonoBehaviour:
     job: 0
     enhanceType: 1
     baseAtk: 5
-    cooldown: 2
+    cooldown: 3
     maxLevel: 5
     atkPerLevel: 3
     enhancePerLevel: 1

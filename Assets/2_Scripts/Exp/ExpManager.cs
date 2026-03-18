@@ -4,13 +4,14 @@ using UnityEngine.Pool;
 
 public class ExpManager : MonoBehaviour
 {
-  [Header("Exp Settings")]
+    [Header("Exp Settings")]
     [SerializeField] private ExpItem expGemPrefab;
     [SerializeField] private float baseRequiredExp = 100f; // 레벨업 필요 경험치 기본값
 
     private ObjectPool<ExpItem> _gemPool;
     private Transform _gemContainer;
 
+    public float Score { get; private set; }
     public int CurrentLevel { get; private set; } = 1;
     public float CurrentExp { get; private set; } = 0;
     public float RequiredExp { get; private set; }
@@ -21,8 +22,9 @@ public class ExpManager : MonoBehaviour
 
     public void Init()
     {
+        Score = 0;
         RequiredExp = baseRequiredExp;
-        
+
         _gemContainer = new GameObject("ExpGemContainer").transform;
         _gemPool = new ObjectPool<ExpItem>(
             createFunc: () => Instantiate(expGemPrefab, _gemContainer),
@@ -57,14 +59,14 @@ public class ExpManager : MonoBehaviour
     private void AddExp(float amount)
     {
         CurrentExp += amount;
-
+        Score += amount;
         // 레벨업 체크 (경험치를 초과해서 얻었을 경우 연속 레벨업 처리)
         while (CurrentExp >= RequiredExp)
         {
             CurrentExp -= RequiredExp;
             CurrentLevel++;
             RequiredExp = CalculateNextRequiredExp(CurrentLevel);
-            
+
             OnLevelUp?.Invoke(CurrentLevel); // 레벨업 이벤트 발생!
         }
 
@@ -74,6 +76,6 @@ public class ExpManager : MonoBehaviour
     // 다음 레벨 필요 경험치 계산 공식 (임시)
     private float CalculateNextRequiredExp(int level)
     {
-        return baseRequiredExp * level * 1.5f; 
+        return baseRequiredExp * level * 1.5f;
     }
 }

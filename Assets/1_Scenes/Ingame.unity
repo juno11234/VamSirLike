@@ -119,6 +119,11 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &215746337 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5430354288358258074, guid: eb9dbb3cae576eb4f8134a288853c967, type: 3}
+  m_PrefabInstance: {fileID: 3242146051938707961}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &247497264
 GameObject:
   m_ObjectHideFlags: 0
@@ -206,6 +211,8 @@ MonoBehaviour:
   expSlider: {fileID: 2000734668}
   levelText: {fileID: 802598711}
   timeText: {fileID: 1585446368}
+  gameOverUI: {fileID: 215746337}
+  scoreText: {fileID: 1840274213}
 --- !u!4 &350761865
 Transform:
   m_ObjectHideFlags: 0
@@ -895,6 +902,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1840274213 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8378211305064433897, guid: eb9dbb3cae576eb4f8134a288853c967, type: 3}
+  m_PrefabInstance: {fileID: 3242146051938707961}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1882536500
 GameObject:
   m_ObjectHideFlags: 0
