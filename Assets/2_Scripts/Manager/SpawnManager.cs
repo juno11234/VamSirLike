@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
@@ -6,126 +7,157 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using Random = UnityEngine.Random;
 
+[Serializable]
+public class WaveData
+{
+    public int id;
+    public float waveStartTime;
+    public float waveEndTime;
+    public string prefabAddress;
+    public float spawnInterval;
+    public float expDropAmount;
+}
+
 public class SpawnManager : MonoBehaviour
 {
-    // todo: 지금은 한종류지만 다양한 몬스터 종류 추가
-    [Header("Spawn Settings")] [SerializeField]
-    private string enemyPrefabAddress = "Enemy_Rat";
-
+    [Header("Wave Settings")]
+    [SerializeField] private List<WaveData> waves; // 에디터에서 웨이브를 여러 개 세팅할 수 있는 리스트
     [SerializeField] private float spawnRadius = 15f;
-    [SerializeField] private float spawnInterval = 0.5f;
 
-    private EnemyStat _enemyStat;
     private PlayerController _player;
-    private GameObject _enemyPrefab;
-
-    private ObjectPool<EnemyController> _enemyPool;
-    private CancellationTokenSource _cts;
     private CombatSystem _combatSystem;
     private ExpManager _expManager;
+    private DataManager _dataManager;
+    private CancellationTokenSource _cts;
 
-    private Action<EnemyController> _returnEnemyPoolAction;
+    private Dictionary<string, GameObject> _loadedPrefabs = new();
+    private Dictionary<string, ObjectPool<EnemyController>> _enemyPools = new();
+    private Dictionary<string, Action<EnemyController>> _releaseActions = new();
+
+    private float _playTime;
 
     // 1. Init을 UniTask로 변경하여 로딩 완료를 외부에서 대기할 수 있게 합니다.
-    public async UniTask InitAsync(PlayerController playerTransform, EnemyStat enemyStat, CombatSystem combatSystem,
-        ExpManager expManager,
-        CancellationToken ct = default)
+    public async UniTask InitAsync(PlayerController playerTransform, CombatSystem combatSystem,
+        ExpManager expManager, DataManager dataManager, CancellationToken ct = default)
     {
         _expManager = expManager;
         _player = playerTransform;
-        _enemyStat = enemyStat;
         _combatSystem = combatSystem;
+        _dataManager = dataManager;
+        _playTime = 0;
 
         // 외부 토큰과 연결하여 씬 전환 시 안전하게 같이 취소되도록 합니다.
         _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
 
-        try
+        // 등록된 모든 웨이브를 순회하며 필요한 프리팹을 전부 로드하고 풀을 만듭니다.
+        foreach (WaveData wave in waves)
         {
-            // 프리팹 로드가 끝날 때까지 대기
-            _enemyPrefab = await Addressables.LoadAssetAsync<GameObject>(enemyPrefabAddress)
-                .ToUniTask(cancellationToken: _cts.Token);
-
-            _enemyPool = new ObjectPool<EnemyController>(
-                createFunc: () =>
-                {
-                    EnemyController controller = Instantiate(_enemyPrefab, transform).GetComponent<EnemyController>();
-                    _combatSystem.RegisterMonster(controller);
-                    return controller;
-                },
-                actionOnGet: (enemy) => enemy.gameObject.SetActive(true),
-                actionOnRelease: (enemy) => enemy.gameObject.SetActive(false),
-                actionOnDestroy: (enemy) =>
-                {
-                    _combatSystem.RemoveMonster(enemy);
-                    Destroy(enemy.gameObject);
-                },
-                defaultCapacity: 50,
-                maxSize: 500
-            );
-            _returnEnemyPoolAction = ReleaseEnemyToPool;
-
-            EnemyController[] prefab = new EnemyController[50];
-            for (int i = 0; i < 50; i++)
+            // 이미 로드한 프리팹이라면 건너뜀 (예: 1웨이브와 3웨이브가 같은 쥐(Rat)일 경우)
+            if (!_loadedPrefabs.ContainsKey(wave.prefabAddress))
             {
-                prefab[i] = _enemyPool.Get(); // 1. 강제로 20개를 생성해서 꺼냄
-            }
+                try
+                {
+                    GameObject prefab = await Addressables.LoadAssetAsync<GameObject>(wave.prefabAddress)
+                        .ToUniTask(cancellationToken: _cts.Token);
+                    _loadedPrefabs[wave.prefabAddress] = prefab;
 
-            for (int i = 0; i < 50; i++)
-            {
-                _enemyPool.Release(prefab[i]); // 2. 즉시 풀로 반납하여 비활성화 대기 상태로 만듦
-            }
+                    // 해당 프리팹 전용 오브젝트 풀 생성
+                    var pool = new ObjectPool<EnemyController>(
+                        createFunc: () =>
+                        {
+                            EnemyController controller = Instantiate(prefab, transform).GetComponent<EnemyController>();
+                            _combatSystem.RegisterMonster(controller);
+                            return controller;
+                        },
+                        actionOnGet: (enemy) => enemy.gameObject.SetActive(true),
+                        actionOnRelease: (enemy) => enemy.gameObject.SetActive(false),
+                        actionOnDestroy: (enemy) =>
+                        {
+                            _combatSystem.RemoveMonster(enemy);
+                            Destroy(enemy.gameObject);
+                        },
+                        defaultCapacity: 50,
+                        maxSize: 500
+                    );
+                    _enemyPools[wave.prefabAddress] = pool;
 
-            // 로딩과 초기화가 끝났으므로 스폰 루프 시작
-            SpawnLoopAsync(_cts.Token).Forget();
+                    // 해당 프리팹 전용 반납 함수 (가비지 컬렉션 최적화)
+                    Action<EnemyController> releaseAction = (enemy) =>
+                    {
+                        _expManager.SpawnGem(enemy.transform.position, wave.expDropAmount);
+                        pool.Release(enemy);
+                    };
+                    _releaseActions[wave.prefabAddress] = releaseAction;
+
+                    // 프리웜(Pre-warm): 렉 방지를 위해 미리 50개씩 찍어내기
+                    EnemyController[] prewarmArray = new EnemyController[50];
+                    for (int i = 0; i < 50; i++) prewarmArray[i] = pool.Get();
+                    for (int i = 0; i < 50; i++) pool.Release(prewarmArray[i]);
+                }
+                catch (OperationCanceledException)
+                {
+                    Debug.Log($"초기화 취소됨: {wave.prefabAddress}");
+                    return;
+                }
+            }
         }
-        catch (OperationCanceledException)
+
+        foreach (WaveData wave in waves)
         {
-            Debug.Log("SpawnManager 초기화가 취소되었습니다.");
+            SpawnLoopAsync(wave, _cts.Token).Forget();
         }
     }
 
-    private async UniTask SpawnLoopAsync(CancellationToken token)
+    private void Update()
     {
+        // 타임 스케일의 영향을 받는 실제 게임 시간을 누적 (레벨업 창이 뜨면 알아서 멈춥니다!)
+        _playTime += Time.deltaTime;
+    }
+
+    private async UniTask SpawnLoopAsync(WaveData wave, CancellationToken token)
+    {
+        await UniTask.WaitUntil(() => _playTime >= wave.waveStartTime, cancellationToken: token);
+
         while (token.IsCancellationRequested == false)
         {
-            SpawnEnemy();
+            // 종료 시간이 설정되어 있고(0보다 큼), 현재 시간이 그걸 넘었다면 이 몬스터는 퇴근!
+            if (wave.waveEndTime > 0 && _playTime > wave.waveEndTime)
+            {
+                break; // 이 스폰 루프를 완전히 종료시킴
+            }
 
-            // spawnInterval(0.5초) 만큼 대기 (Update문 필요 없음!)
-            await UniTask.Delay(TimeSpan.FromSeconds(spawnInterval), cancellationToken: token);
+            SpawnEnemy(wave);
+
+            // ignoreTimeScale: false 로 설정하여 레벨업 창이 떠서 Time.timeScale = 0 이 되면 스폰도 멈추게 합니다.
+            int delayMs = Mathf.RoundToInt(wave.spawnInterval * 1000f);
+            await UniTask.Delay(delayMs, ignoreTimeScale: false, cancellationToken: token);
         }
     }
 
-    private void SpawnEnemy()
+    private void SpawnEnemy(WaveData wave)
     {
         if (_player == null) return;
 
-        // 플레이어 주변 360도 무작위 방향의 테두리 위치 계산
         Vector2 randomDir = Random.insideUnitCircle.normalized;
         Vector3 spawnPos = _player.transform.position + (Vector3)(randomDir * spawnRadius);
 
-        // 풀에서 적을 하나 꺼내고 위치 지정
-        EnemyController enemy = _enemyPool.Get();
+        // 현재 웨이브에 설정된 프리팹의 전용 풀에서 적을 꺼내옵니다.
+        ObjectPool<EnemyController> pool = _enemyPools[wave.prefabAddress];
+        EnemyController enemy = pool.Get();
         enemy.transform.position = spawnPos;
-
-        // 2. OOP 설계: 풀 전체를 넘기지 않고, '풀로 되돌아가는 행동(Action)'만 넘겨줍니다.
-        enemy.Setup(_player, _enemyStat, _returnEnemyPoolAction,_combatSystem);
-    }
-
-    // 풀에 반납하는 전용 메서드
-    private void ReleaseEnemyToPool(EnemyController enemy)
-    {
-        _expManager.SpawnGem(enemy.transform.position, 50f);
-        _enemyPool.Release(enemy);
+        EnemyStat stat = _dataManager.GetEnemyStat(wave.id);
+        // 전용 반납 함수(_releaseActions)를 함께 넘겨줍니다.
+        enemy.Setup(_player, stat, _releaseActions[wave.prefabAddress], _combatSystem);
     }
 
     private void OnDestroy()
     {
         _cts?.Cancel();
         _cts?.Dispose();
-        // 3. 메모리 누수 방지: 로드했던 프리팹 원본 에셋 해제
-        if (_enemyPrefab != null)
+        // 로드했던 모든 프리팹 메모리에서 깔끔하게 해제
+        foreach (var prefab in _loadedPrefabs.Values)
         {
-            Addressables.Release(_enemyPrefab);
+            Addressables.Release(prefab);
         }
     }
 }

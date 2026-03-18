@@ -770,9 +770,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8662bc696714ef4ab1c124d1bbd0d24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefabAddress: Enemy_Rat
+  waves:
+  - id: 1001
+    waveStartTime: 0
+    waveEndTime: 0
+    prefabAddress: Enemy_Rat
+    spawnInterval: 1
+    expDropAmount: 50
+  - id: 1002
+    waveStartTime: 30
+    waveEndTime: 0
+    prefabAddress: Enemy_Spider
+    spawnInterval: 2
+    expDropAmount: 100
+  - id: 1003
+    waveStartTime: 60
+    waveEndTime: 0
+    prefabAddress: Enemy_Ghost
+    spawnInterval: 3
+    expDropAmount: 150
   spawnRadius: 15
-  spawnInterval: 1
 --- !u!4 &1392157688
 Transform:
   m_ObjectHideFlags: 0

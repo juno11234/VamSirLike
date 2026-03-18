@@ -7,22 +7,24 @@ public class EnemyController : MonoBehaviour, IFighter
 {
     [Header("Attack Settings")] [SerializeField]
     private float attackRange = 0.8f; // 공격 사거리 (플레이어와 닿는 거리)
-
     [SerializeField] private float attackCooldown = 1f; // 1초마다 공격
     [SerializeField] private float flashDuration = 0.1f; // 번쩍이는 시간
+
     private float _attackTimer;
     public Collider2D MainCollider => _collider2D;
     private Collider2D _collider2D;
+    
     private SpriteRenderer _spriteRenderer;
     private CombatSystem _combatSystem;
     private PlayerController _targetPlayer;
+    
     private EnemyStat _stat;
     private float _currentHp;
     private Action<EnemyController> _onDeathCallback;
 
     // 쉐이더 최적화를 위한 프로퍼티 블록
     private MaterialPropertyBlock _mpb;
-    private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount"); 
+    private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount");
 
     private void Awake()
     {

@@ -29,7 +29,7 @@ MonoBehaviour:
     name: Ghost
     hp: 75
     atk: 20
-    speed: 7
+    speed: 6.5
     attackType: 0
   - id: 1004
     name: Warlock
