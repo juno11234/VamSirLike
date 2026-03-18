@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using VContainer;
 using Random = UnityEngine.Random;
 
@@ -51,7 +52,7 @@ public class LevelUpUI : MonoBehaviour
                 // 버튼 클릭 시 OnSkillSelected 함수가 실행되도록 연결
                 SkillBase currentSkill = _skillManager.GetCurrentSkillData(allSkills[i].id);
                 buttons[i].Init(allSkills[i], currentSkill, OnSkillSelected);
-                
+
                 buttons[i].gameObject.SetActive(true);
             }
             else
@@ -66,6 +67,10 @@ public class LevelUpUI : MonoBehaviour
         // 1. UI 닫고 게임 재개
         panel.SetActive(false);
         Time.timeScale = 1f;
+        if (EventSystem.current != null)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+        }
 
         // 2. 스킬 매니저에게 해당 스킬 추가/레벨업 명령! (비동기)
         _skillManager.AddOrLevelUpWeaponAsync(skillId).Forget();
