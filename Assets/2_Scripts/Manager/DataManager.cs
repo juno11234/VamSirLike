@@ -28,6 +28,7 @@ public class DataManager : IDisposable
     {
         _playerStatDict.Clear();
         _enemyStatDict.Clear();
+        _playerSkillDict.Clear();
 
         // 리스트를 딕셔너리로
         foreach (PlayerStat stat in _container.PlayerStats)

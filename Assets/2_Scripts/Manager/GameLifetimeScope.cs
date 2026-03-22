@@ -44,7 +44,6 @@ public class GameInitializer : IAsyncStartable
     private readonly UIManager _uiManager;
 
     private const int PlayerWarriorId = 3001;
-    private const int EnemyRatId = 1001;
 
     public GameInitializer(DataManager dataManager, SpawnManager spawnManager, PlayerController playerController,
         CombatSystem combatSystem, ExpManager expManager, UIManager uiManager)
@@ -61,11 +60,9 @@ public class GameInitializer : IAsyncStartable
     {
         await _dataManager.InitializeAsync(cancellationToken);
 
-        // [개선 포인트] return 대신 C# 표준 방식인 예외 던지기를 사용합니다.
-        // VContainer가 이 예외를 감지하고 안전하게 초기화 프로세스를 중단해 줍니다.
+        // VContainer가 이 예외를 감지하고 안전하게 초기화 프로세스를 중단.
         cancellationToken.ThrowIfCancellationRequested();
 
-        // 플레이어 초기화
         PlayerStat warriorStat = _dataManager.GetPlayerStat(PlayerWarriorId);
         _playerController.Initialize(warriorStat, _combatSystem, _dataManager);
         

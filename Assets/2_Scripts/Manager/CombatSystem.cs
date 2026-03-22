@@ -29,17 +29,14 @@ public class CombatSystem : ITickable, IDisposable
 
     public void Tick()
     {
-        // 큐에 있는 모든 이벤트를 해당 프레임에 지연 없이 즉시 처리합니다.
         while (_eventQueue.Count > 0)
         {
-            // struct이므로 Dequeue할 때도 GC가 발생하지 않습니다.
             InGameEvent inGameEvent = _eventQueue.Dequeue();
 
             switch (inGameEvent.Type)
             {
                 case InGameEvent.EventType.Combat:
                     inGameEvent.Receiver.TakeDamage(inGameEvent);
-                    // 콜백 발생! (UI 업데이트나 이펙트 재생에 활용)
                     EventCallback.OnCombatEvent?.Invoke(inGameEvent);
                     break;
 

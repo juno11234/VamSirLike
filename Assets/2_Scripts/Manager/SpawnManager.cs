@@ -84,7 +84,7 @@ public class SpawnManager : MonoBehaviour
                     // 해당 프리팹 전용 반납 함수 (가비지 컬렉션 최적화)
                     Action<EnemyController> releaseAction = (enemy) =>
                     {
-                        _expManager.SpawnGem(enemy.transform.position, wave.expDropAmount);
+                        _expManager.SpawnExp(enemy.transform.position, wave.expDropAmount);
                         pool.Release(enemy);
                     };
                     _releaseActions[wave.prefabAddress] = releaseAction;
@@ -120,15 +120,13 @@ public class SpawnManager : MonoBehaviour
 
         while (token.IsCancellationRequested == false)
         {
-            // 종료 시간이 설정되어 있고(0보다 큼), 현재 시간이 그걸 넘었다면 이 몬스터는 퇴근!
             if (wave.waveEndTime > 0 && _playTime > wave.waveEndTime)
             {
-                break; // 이 스폰 루프를 완전히 종료시킴
+                break; 
             }
 
             SpawnEnemy(wave);
-
-            // ignoreTimeScale: false 로 설정하여 레벨업 창이 떠서 Time.timeScale = 0 이 되면 스폰도 멈추게 합니다.
+            
             int delayMs = Mathf.RoundToInt(wave.spawnInterval * 1000f);
             await UniTask.Delay(delayMs, ignoreTimeScale: false, cancellationToken: token);
         }
@@ -141,12 +139,11 @@ public class SpawnManager : MonoBehaviour
         Vector2 randomDir = Random.insideUnitCircle.normalized;
         Vector3 spawnPos = _player.transform.position + (Vector3)(randomDir * spawnRadius);
 
-        // 현재 웨이브에 설정된 프리팹의 전용 풀에서 적을 꺼내옵니다.
         ObjectPool<EnemyController> pool = _enemyPools[wave.prefabAddress];
         EnemyController enemy = pool.Get();
         enemy.transform.position = spawnPos;
         EnemyStat stat = _dataManager.GetEnemyStat(wave.id);
-        // 전용 반납 함수(_releaseActions)를 함께 넘겨줍니다.
+        
         enemy.Setup(_player, stat, _releaseActions[wave.prefabAddress], _combatSystem);
     }
 

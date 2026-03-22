@@ -78,12 +78,11 @@ public class EnemyController : MonoBehaviour, IFighter
 
     private void AttackPlayer()
     {
-        // CombatSystem을 통해 공격 이벤트 전송 (GC 발생 없음)
         InGameEvent evt = new InGameEvent
         {
             Type = InGameEvent.EventType.Combat,
             Sender = this,
-            Receiver = _targetPlayer, // _targetPlayer는 IFighter를 상속받았으므로 바로 전달 가능
+            Receiver = _targetPlayer, 
             Amount = _stat.atk
         };
 
@@ -94,8 +93,7 @@ public class EnemyController : MonoBehaviour, IFighter
     {
         _onDeathCallback?.Invoke(this);
     }
-
-
+    
     public void TakeDamage(InGameEvent combatEvent)
     {
         if (_isDead) return;
@@ -115,18 +113,13 @@ public class EnemyController : MonoBehaviour, IFighter
 
     private async UniTaskVoid HitRoutineAsync()
     {
-        // 1. 하얗게 번쩍!
         _spriteRenderer.GetPropertyBlock(_mpb);
         _mpb.SetFloat(FlashAmountProp, 0.4f);
         _spriteRenderer.SetPropertyBlock(_mpb);
 
-        // 2. 대기
         await UniTask.Delay(TimeSpan.FromSeconds(flashDuration));
 
-        // 3. 대기하는 동안 적이 죽어서 풀로 돌아갔거나 파괴되었다면 중단
         if (this == null || !gameObject.activeInHierarchy) return;
-
-        // 4. 원래 색으로 복구
         ResetFlashEffect();
     }
 

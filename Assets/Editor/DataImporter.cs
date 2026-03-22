@@ -11,20 +11,17 @@ public class DataImporter : EditorWindow
     private TextAsset skillTSV;
     private TextAsset statLevelUpsTSV;
 
-    // 유니티 상단 메뉴에 버튼 생성
     [MenuItem("VamSir Tools/Data Importer (TSV)")]
     public static void ShowWindow()
     {
-        // 커스텀 창 띄우기
+        // 데이터 임포터 바탕으로 팝업창 (탭 제목) 
         GetWindow<DataImporter>("TSV 임포터");
     }
-
-    // 에디터 창의 UI를 그리는 함수
     private void OnGUI()
     {
         GUILayout.Label("데이터 임포트 설정", EditorStyles.boldLabel);
-
-        // 드래그 앤 드롭으로 에셋을 연결할 수 있는 필드 생성
+        
+        // 에셋을 연결할 수 있는 필드 생성
         targetContainer = (GameDataContainer)EditorGUILayout.ObjectField("Target Container (SO)", targetContainer, typeof(GameDataContainer), false);
         enemyTSV = (TextAsset)EditorGUILayout.ObjectField("적 스탯 TSV", enemyTSV, typeof(TextAsset), false);
         playerTSV = (TextAsset)EditorGUILayout.ObjectField("플레이어 스탯 TSV", playerTSV, typeof(TextAsset), false);
@@ -42,13 +39,12 @@ public class DataImporter : EditorWindow
                 return;
             }
 
-            // GUI 이벤트 도중 충돌을 피하기 위해, 다음 프레임에 임포트 실행
+            // GUI 이벤트 도중 충돌을 피하기 위해, 다음 프레임에 실행
             EditorApplication.delayCall += () => 
             {
                 // 3. 데이터를 수정하기 전에 "나 이거 수정할 거니까 기록해 둬!" 라고 유니티에 알림 (안전성 확보)
                 Undo.RecordObject(targetContainer, "Import TSV Data");
         
-                // 실제 임포트 로직 실행
                 ImportAllData();
             };
         }
@@ -63,7 +59,7 @@ public class DataImporter : EditorWindow
             targetContainer.EnemyStats.Clear(); // 기존 데이터 초기화
             string[] lines = enemyTSV.text.Split('\n');
             
-            for (int i = 2; i < lines.Length; i++) // [시니어 포인트] 0, 1번째 줄은 헤더이므로 index 2부터 시작
+            for (int i = 2; i < lines.Length; i++) // 0, 1번째 줄은 헤더이므로 index 2부터 시작
             {
                 if (string.IsNullOrWhiteSpace(lines[i])) continue; // 빈 줄 무시
                 
@@ -94,14 +90,12 @@ public class DataImporter : EditorWindow
                 if (string.IsNullOrWhiteSpace(lines[i])) continue;
                 string[] cols = lines[i].TrimEnd('\r').Split('\t');
 
-                // ★ [방어막 1] 탭이 빠져서 6칸이 안 되면 여기서 걸러내고 로그를 띄웁니다!
                 if (cols.Length < 6)
                 {
                     Debug.LogError($"[PlayerStat] {i + 1}번째 줄에 탭(Tab)이 누락된 것 같습니다! 현재 칸 수: {cols.Length}");
                     continue; 
                 }
 
-                // ★ [방어막 2] .Trim()을 붙여서 자잘한 띄어쓰기를 전부 청소합니다.
                 PlayerStat stat = new PlayerStat
                 {
                     id = int.Parse(cols[0].Trim()),
@@ -131,7 +125,7 @@ public class DataImporter : EditorWindow
                     Debug.LogWarning($"{i + 1}번째 줄 데이터 칸 수가 부족합니다! (현재 {cols.Length}칸)");
                     continue;
                 }
-                // 2. 모든 Parse 안에 .Trim()을 추가하여 공백/엔터키 에러를 원천 차단합니다.
+                // 2. 모든 Parse 안에 .Trim()을 추가하여 공백/엔터키 에러를 차단
                 SkillData skill = new SkillData
                 {
                     id = int.Parse(cols[0].Trim()),
@@ -140,7 +134,7 @@ public class DataImporter : EditorWindow
                     enhanceType = (EnhanceType)Enum.Parse(typeof(EnhanceType), cols[3].Trim(), true),
                     baseAtk = float.Parse(cols[4].Trim()),
                     cooldown = float.Parse(cols[5].Trim()),
-                    // cols[6] (최소레벨)은 제외
+                    // cols[6] (최소레벨)
                     maxLevel = int.Parse(cols[7].Trim()),
                     atkPerLevel = float.Parse(cols[8].Trim()), 
                     enhancePerLevel = float.Parse(cols[9].Trim()),
