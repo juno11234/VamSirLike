@@ -21,7 +21,7 @@ public struct CurrentData
 
 public abstract class SkillBase : MonoBehaviour
 {
-    [SerializeField] protected LayerMask enemyLayer; // 몬스터만 골라내기 위한 레이어 마스크
+    [SerializeField] protected LayerMask enemyLayer; 
 
     protected CombatSystem CombatSystem;
     protected IFighter Sender;
@@ -81,13 +81,12 @@ public class SkillManager : MonoBehaviour
     }
 
     // 2. 외부에서 매개변수로 Prefab을 넘겨주는 방식 대신, Addressable로 직접 로드!
-    // (TSV 스킬 데이터에 "PrefabName" 같은 컬럼이 있다고 가정)
     public async UniTask AddOrLevelUpWeaponAsync(int skillId)
     {
         SkillData data = _dataManager.GetSkillData(skillId);
         if (data == null) return;
 
-        // 이미 가지고 있는 무기라면 레벨업!
+        // 이미 가지고 있는 무기라면 레벨업
         if (_activeWeapons.TryGetValue(skillId, out SkillBase existingWeapon))
         {
             existingWeapon.LevelUp(data); // 레벨업 로직 호출
@@ -95,7 +94,6 @@ public class SkillManager : MonoBehaviour
         }
 
         // 새로운 무기라면 Addressable로 프리팹 비동기 로드
-        // (주의: Addressables 주소는 게임 기획에 맞게 수정 필요)
         GameObject weaponPrefab = await Addressables.InstantiateAsync(data.prefabKey, transform).ToUniTask();
 
         SkillBase newWeapon = weaponPrefab.GetComponent<SkillBase>();

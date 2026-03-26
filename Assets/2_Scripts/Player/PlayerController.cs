@@ -64,6 +64,7 @@ public class PlayerController : MonoBehaviour, IFighter
         _itemFilter.SetLayerMask(itemLayer);
         _itemFilter.useLayerMask = true;
         _itemFilter.useTriggers = true;
+        
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
 
         if (_spriteRenderer != null)
@@ -109,10 +110,9 @@ public class PlayerController : MonoBehaviour, IFighter
         int hitCount = Physics2D.OverlapCircle(transform.position, magnetRadius, _itemFilter, _itemResults);
         for (int i = 0; i < hitCount; i++)
         {
-            // TryGetComponent가 GetComponent보다 미세하게 더 빠르고 안전합니다
             if (_itemResults[i].TryGetComponent(out ExpItem item))
             {
-                item.SetTarget(transform); // 획득!
+                item.SetTarget(transform); 
             }
         }
     }
@@ -129,7 +129,6 @@ public class PlayerController : MonoBehaviour, IFighter
         }
         else
         {
-            // 체력이 남아있다면 피격 이펙트 및 무적 시간 발동 (비동기)
             HitRoutineAsync().Forget();
         }
     }

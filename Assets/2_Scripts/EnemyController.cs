@@ -58,7 +58,6 @@ public class EnemyController : MonoBehaviour, IFighter
         Vector3 offset = _targetPlayer.transform.position - transform.position;
         float distanceSqr = offset.sqrMagnitude;
 
-        // 2. 사거리 안으로 들어왔다면?
         if (distanceSqr <= attackRange * attackRange)
         {
             // 쿨타임이 찼을 때만 때림
@@ -70,7 +69,6 @@ public class EnemyController : MonoBehaviour, IFighter
         }
         else
         {
-            // 3. 사거리 밖이라면 플레이어 쪽으로 이동
             Vector3 direction = offset.normalized;
             transform.position += direction * (_stat.speed * Time.deltaTime);
         }

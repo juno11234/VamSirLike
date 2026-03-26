@@ -15,7 +15,7 @@ public class GameLifetimeScope : LifetimeScope
 
     protected override void Configure(IContainerBuilder builder)
     {
-        // DataManager가 순수 C# 클래스(MonoBehaviour 상속 X)
+        // 순수 C# 클래스
         builder.Register<DataManager>(Lifetime.Singleton);
 
         // 이씬만(Scope) .인터페이스명찰등록 .본명등록
@@ -23,7 +23,7 @@ public class GameLifetimeScope : LifetimeScope
             .AsImplementedInterfaces()
             .AsSelf();
 
-        // Register 대신 RegisterComponent로 변경!
+        // Register 대신 RegisterComponent
         builder.RegisterComponent(spawnManager);
         builder.RegisterComponent(playerController);
         builder.RegisterComponent(expManager);

@@ -12,6 +12,7 @@ public class DataManager : IDisposable
     private readonly Dictionary<int, PlayerStat> _playerStatDict = new Dictionary<int, PlayerStat>();
     private readonly Dictionary<int, EnemyStat> _enemyStatDict = new Dictionary<int, EnemyStat>();
     private readonly Dictionary<int, SkillData> _playerSkillDict = new Dictionary<int, SkillData>();
+    List<SkillData> _skillList = new List<SkillData>();
 
     public async UniTask InitializeAsync(CancellationToken ct = default)
     {
@@ -72,16 +73,17 @@ public class DataManager : IDisposable
 
     public List<SkillData> GetSkillList()
     {
-        List<SkillData> skillList = new List<SkillData>();
+        _skillList.Clear();
+
         foreach (var skills in _container.SkillData)
         {
             if (skills.job is JobType.Warrior)
             {
-                skillList.Add(skills);
+                _skillList.Add(skills);
             }
         }
 
-        return skillList;
+        return _skillList;
     }
 
     // VContainer의 생명주기가 끝날 때(게임 종료, 씬 전환 등) 자동으로 호출됩니다.
@@ -93,6 +95,7 @@ public class DataManager : IDisposable
             _container = null;
         }
 
+        _playerSkillDict.Clear();
         _playerStatDict.Clear();
         _enemyStatDict.Clear();
         Debug.Log("DataManager 메모리 해제 완료");

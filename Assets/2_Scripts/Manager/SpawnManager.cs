@@ -8,7 +8,7 @@ using System.Threading;
 using Random = UnityEngine.Random;
 
 [Serializable]
-public class WaveData
+public struct WaveData
 {
     public int id;
     public float waveStartTime;
@@ -53,7 +53,7 @@ public class SpawnManager : MonoBehaviour
         foreach (WaveData wave in waves)
         {
             // 이미 로드한 프리팹이라면 건너뜀 (예: 1웨이브와 3웨이브가 같은 쥐(Rat)일 경우)
-            if (!_loadedPrefabs.ContainsKey(wave.prefabAddress))
+            if (_loadedPrefabs.ContainsKey(wave.prefabAddress)==false)
             {
                 try
                 {

@@ -38,6 +38,7 @@ public class LevelUpUI : MonoBehaviour
 
         // 2. 전체 스킬 목록 가져와서 무작위로 섞기 (간단한 셔플)
         List<SkillData> allSkills = _dataManager.GetSkillList();
+        
         for (int i = 0; i < allSkills.Count; i++)
         {
             int rand = Random.Range(i, allSkills.Count);
@@ -72,7 +73,7 @@ public class LevelUpUI : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(null);
         }
 
-        // 2. 스킬 매니저에게 해당 스킬 추가/레벨업 명령! (비동기)
+        // 2. 스킬 매니저에게 해당 스킬 추가/레벨업 명령
         _skillManager.AddOrLevelUpWeaponAsync(skillId).Forget();
     }
 
