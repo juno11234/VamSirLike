@@ -57,7 +57,7 @@ public class BoomerangProjectile : MonoBehaviour
 
     private void Update()
     {
-        // 1. 빙글빙글 회전 효과 (Z축 회전)
+        // 1. 회전 효과 (Z축 회전)
         transform.Rotate(0, 0, spinSpeed * Time.deltaTime);
 
         // 2. 상태에 따른 이동 로직
@@ -69,7 +69,7 @@ public class BoomerangProjectile : MonoBehaviour
             if (currentDistSqr >= maxDistance * maxDistance) 
             {
                 _currentState = State.Returning;
-                _hitTargets.Clear(); // 돌아올 때 다시 때리기 위해 초기화 (최고의 로직!)
+                _hitTargets.Clear(); // 돌아올 때 다시 때리기 위해 초기화
             }
         }
         else if (_currentState == State.Returning)
@@ -81,11 +81,11 @@ public class BoomerangProjectile : MonoBehaviour
                 return;
             }
 
-            // 플레이어의 현재 위치를 향해 방향을 계속 틀면서 이동 (유도탄)
+            // 플레이어의 현재 위치를 향해 이동 
             Vector3 returnDir = (_playerTransform.position - transform.position).normalized;
             transform.position += returnDir * (returnSpeed * Time.deltaTime);
             
-            // 플레이어와 충분히 가까워지면(잡으면) 풀로 반납
+            // 플레이어와 충분히 가까워지면 풀로 반납
             if ((transform.position - _playerTransform.position).sqrMagnitude < 0.25f)
             {
                 _onRelease?.Invoke(this);

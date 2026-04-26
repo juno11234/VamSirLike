@@ -19,7 +19,7 @@ public class SkillSelectButton : MonoBehaviour
     [SerializeField] private Image skillImage;
     private int _skillId;
     private Action<int> _onClickCallback;
-    // [핵심] 어드레서블 메모리 해제를 위해 핸들을 기억해둘 변수
+    // 어드레서블 메모리 해제를 위해 핸들을 기억해둘 변수
     private AsyncOperationHandle<Sprite> _imageHandle;
 
     public void Init(SkillData data, SkillBase currentSkill, Action<int> onClick)
@@ -79,14 +79,11 @@ public class SkillSelectButton : MonoBehaviour
             return;
         }
 
-        // 2. 핸들을 저장하면서 새 이미지 로드
         _imageHandle = Addressables.LoadAssetAsync<Sprite>($"Tilemap[tilemap_{address}]");
         Sprite image = await _imageHandle.ToUniTask();
 
-        // 3. 내가 살아있는지 확인
         if (this == null || skillImage == null) return;
 
-        // 4. 적용
         skillImage.sprite = image;
     }
 

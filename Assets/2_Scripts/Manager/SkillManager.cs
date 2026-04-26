@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -21,7 +22,7 @@ public struct CurrentData
 
 public abstract class SkillBase : MonoBehaviour
 {
-    [SerializeField] protected LayerMask enemyLayer; 
+    [SerializeField] protected LayerMask enemyLayer;
 
     protected CombatSystem CombatSystem;
     protected IFighter Sender;
@@ -110,5 +111,13 @@ public class SkillManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void OnDestroy()
+    {
+        foreach (KeyValuePair<int, SkillBase> weapon in _activeWeapons)
+        {
+            Addressables.ReleaseInstance(weapon.Value.gameObject);
+        }
     }
 }

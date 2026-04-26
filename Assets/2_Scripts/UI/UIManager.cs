@@ -11,8 +11,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] Vector3 hpBarOffset = new Vector3(0, -1f, 0);
 
     [Header("Experience")]
-    [SerializeField]
-    private Slider expSlider;
+    [SerializeField] private Slider expSlider;
     [SerializeField] private TextMeshProUGUI levelText;
 
     [Header("Play Time")]
@@ -27,7 +26,7 @@ public class UIManager : MonoBehaviour
     private ExpManager _expManager;
     private float _playTime;
     private int _lastSeconds = -1; // 이전 프레임의 초(Second)를 기억할 변수
-    
+
     // VContainer가 게임 시작 시 알아서 Player와 ExpManager를 찾아 꽂아줍니다.
     [Inject]
     public void Init(PlayerController player, ExpManager expManager)
@@ -35,12 +34,12 @@ public class UIManager : MonoBehaviour
         _playerTransform = player.transform;
         _mainCamera = Camera.main;
         _expManager = expManager;
-        
+
         // 1. 플레이어 HP 이벤트 구독 및 초기 셋업
         player.OnHpChanged += UpdateHpUI;
         player.OnDeath += GameOver;
         UpdateHpUI(player.CurrentHp, player.MaxHp);
-        
+
         // 2. 경험치 매니저 이벤트 구독 및 초기 셋업
         _expManager.OnExpChanged += UpdateExpUI;
         _expManager.OnLevelUp += UpdateLevelUI;
@@ -54,13 +53,13 @@ public class UIManager : MonoBehaviour
     {
         _playTime += Time.deltaTime;
         int currentSeconds = Mathf.FloorToInt(_playTime % 60f);
-        
+
         if (_lastSeconds != currentSeconds)
         {
             _lastSeconds = currentSeconds;
             int minutes = Mathf.FloorToInt(_playTime / 60f);
-    
-            // 핵심: .text에 문자열을 조합해서 넣지 않고, SetText 함수를 사용합니다.
+
+            // .text에 문자열을 조합해서 넣지 않고 SetText 함수를 사용.
             timeText.SetText("{0:00}:{1:00}", minutes, currentSeconds);
         }
     }

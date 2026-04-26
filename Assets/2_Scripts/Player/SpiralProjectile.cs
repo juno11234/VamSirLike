@@ -59,9 +59,7 @@ public class SpiralProjectile : MonoBehaviour
 
         // 3. 위치 적용
         transform.position = _center.position + new Vector3(x, y, 0);
-
-        // --- [추가된 회전 로직] ---
-        // _angle은 라디안(Radian) 값이므로 우리가 아는 도(Degree) 단위로 변환해 줍니다.
+        
         float angleDeg = _angle * Mathf.Rad2Deg;
 
         transform.rotation = Quaternion.Euler(0, 0, angleDeg - 90f);

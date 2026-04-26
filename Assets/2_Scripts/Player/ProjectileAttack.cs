@@ -39,7 +39,7 @@ public class ProjectileAttack : MonoBehaviour
 
         if (hit.collider != null)
         {
-            // 적이 감지됨!
+            // 적이 감지됨
             IFighter target = _combatSystem.GetMonster(hit.collider);
             if (target != null)
             {
