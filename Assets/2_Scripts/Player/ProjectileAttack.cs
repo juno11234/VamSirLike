@@ -15,7 +15,7 @@ public class ProjectileAttack : MonoBehaviour
     private float _damage;
     private float _timer;
 
-    private  Action<ProjectileAttack> _onReturnPool;
+    private Action<ProjectileAttack> _onReturnPool;
 
     public void Init(CombatSystem combatSystem,IFighter sender, Vector2 direction, float damage, Action<ProjectileAttack> returnPool)
     {

@@ -27,8 +27,6 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterComponent(expManager);
         builder.RegisterComponent(uiManager);
         builder.RegisterComponent(levelUpUI);
-        // GameInitializer가 StartCoroutine 호출을 위해 주입받음
-        builder.RegisterComponent(this);
 
         builder.RegisterEntryPoint<GameInitializer>();
     }
@@ -42,13 +40,13 @@ public class GameInitializer : IStartable
     private readonly CombatSystem _combatSystem;
     private readonly ExpManager _expManager;
     private readonly UIManager _uiManager;
-    private readonly GameLifetimeScope _scope;
+    private readonly LifetimeScope _scope;
 
     private const int PlayerWarriorId = 3001;
 
     public GameInitializer(DataManager dataManager, SpawnManager spawnManager,
         PlayerController playerController, CombatSystem combatSystem,
-        ExpManager expManager, UIManager uiManager, GameLifetimeScope scope)
+        ExpManager expManager, UIManager uiManager, LifetimeScope scope)
     {
         _combatSystem = combatSystem;
         _dataManager = dataManager;

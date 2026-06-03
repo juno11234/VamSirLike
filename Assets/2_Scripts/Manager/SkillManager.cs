@@ -33,7 +33,6 @@ public abstract class SkillBase : MonoBehaviour
     protected float Damage;
     protected float Cooldown;
 
-
     public virtual void Init(CombatSystem combatSystem, IFighter sender, SkillData skillData)
     {
         CombatSystem = combatSystem;
@@ -101,11 +100,18 @@ public class SkillManager : MonoBehaviour
 
         // 새로운 무기라면 Addressable로 프리팹 비동기 로드
         AsyncOperationHandle<GameObject> handle =
-            Addressables.InstantiateAsync(data.prefabKey, transform);
+            Addressables.LoadAssetAsync<GameObject>(data.prefabKey);
         yield return handle;
 
-        SkillBase newWeapon = handle.Result.GetComponent<SkillBase>();
+        // Init 전에 Update가 실행되지 않도록 inactive로 생성
+        GameObject prefab = handle.Result;
+        prefab.SetActive(false);
+        GameObject instance = Instantiate(prefab, transform);
+        prefab.SetActive(true);
+
+        SkillBase newWeapon = instance.GetComponent<SkillBase>();
         newWeapon.Init(_combatSystem, _sender, data);
+        instance.SetActive(true);
         _activeWeapons.Add(skillId, newWeapon);
     }
 
@@ -123,7 +129,7 @@ public class SkillManager : MonoBehaviour
     {
         foreach (KeyValuePair<int, SkillBase> weapon in _activeWeapons)
         {
-            Addressables.ReleaseInstance(weapon.Value.gameObject);
+            Destroy(weapon.Value.gameObject);
         }
     }
 }
