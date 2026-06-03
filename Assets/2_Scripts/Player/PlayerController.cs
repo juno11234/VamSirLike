@@ -6,25 +6,25 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour, IFighter
 {
     [Header("Map Boundaries")]
-    public Vector2 minBounds = new Vector2(-10f, -10f); // 좌하단 끝 좌표
-    public Vector2 maxBounds = new Vector2(10f, 10f); // 우상단 끝 좌표
-    
-    [Header("Magnet Settings")] [SerializeField]
-    private float magnetRadius = 4f; // 보석 획득 반경
+    public Vector2 minBounds = new Vector2(-10f, -10f);
+    public Vector2 maxBounds = new Vector2(10f, 10f);
 
-    [SerializeField] private float invincibilityDuration = 0.5f; // 무적 시간 (0.5초)
-    [SerializeField] private float flashDuration = 0.1f; // 번쩍이는 시간 (0.1초)
-    
-    [SerializeField] private LayerMask itemLayer; // 보석 전용 레이어 (인스펙터 세팅 필수)
+    [Header("Magnet Settings")]
+    [SerializeField] private float magnetRadius = 4f;
+
+    [SerializeField] private float invincibilityDuration = 0.5f;
+    [SerializeField] private float flashDuration = 0.1f;
+
+    [SerializeField] private LayerMask itemLayer;
     [SerializeField] private int[] startingSkillIds;
 
     public Collider2D MainCollider => _collider;
     public float MaxHp { get; private set; }
     public float CurrentHp { get; private set; }
-    
+
     public event Action<float, float> OnHpChanged;
     public event Action OnDeath;
-    
+
     private SpriteRenderer _spriteRenderer;
     private CombatSystem _combatSystem;
     private SkillManager _skillManager;
@@ -34,17 +34,11 @@ public class PlayerController : MonoBehaviour, IFighter
     private Vector2 _moveInput;
 
     private Collider2D _collider;
-    
-    private MaterialPropertyBlock _mpb;
-    private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount");
-    
-    private Collider2D[] _itemResults = new Collider2D[20];
-    private ContactFilter2D _itemFilter;
-    
+
     private float _moveSpeed;
     private bool _isInitialized = false;
     private bool _isInvincible = false;
-    
+
     public void Initialize(PlayerStat stat, CombatSystem combatSystem, DataManager dataManager)
     {
         MaxHp = stat.baseHp;
@@ -52,7 +46,6 @@ public class PlayerController : MonoBehaviour, IFighter
         _moveSpeed = stat.baseSpeed;
         _isInitialized = true;
         _combatSystem = combatSystem;
-        _mpb = new MaterialPropertyBlock();
 
         _collider = GetComponent<Collider2D>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -60,18 +53,11 @@ public class PlayerController : MonoBehaviour, IFighter
 
         _skillManager.Init(_combatSystem, this, dataManager, startingSkillIds);
 
-        _itemFilter = new ContactFilter2D();
-        _itemFilter.SetLayerMask(itemLayer);
-        _itemFilter.useLayerMask = true;
-        _itemFilter.useTriggers = true;
-        
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
 
         if (_spriteRenderer != null)
         {
-            _spriteRenderer.GetPropertyBlock(_mpb);
-            _mpb.SetFloat(FlashAmountProp, 0f);
-            _spriteRenderer.SetPropertyBlock(_mpb);
+            _spriteRenderer.material.SetFloat("_Amount", 0f);
         }
     }
 
@@ -80,6 +66,7 @@ public class PlayerController : MonoBehaviour, IFighter
         _playerInput = new PlayerActions();
         _player = _playerInput.PlayerMovement;
 
+        // 람다식: 입력 이벤트 콜백을 간결하게 등록하기 위해 사용
         _player.Move.performed += ctx => _moveInput = ctx.ReadValue<Vector2>();
         _player.Move.canceled += ctx => _moveInput = Vector2.zero;
     }
@@ -87,14 +74,13 @@ public class PlayerController : MonoBehaviour, IFighter
     private void OnEnable() => _playerInput.Enable();
     private void OnDisable() => _playerInput.Disable();
 
-    void Update()
+    private void Update()
     {
         if (_isInitialized == false) return;
         Vector3 moveDir = new Vector3(_moveInput.x, _moveInput.y, 0f).normalized;
 
         if (moveDir.x != 0)
         {
-            // x가 0보다 작으면(왼쪽) flipX를 true로, 크면(오른쪽) false로!
             _spriteRenderer.flipX = moveDir.x < 0;
         }
 
@@ -107,12 +93,12 @@ public class PlayerController : MonoBehaviour, IFighter
 
     private void CollectItems()
     {
-        int hitCount = Physics2D.OverlapCircle(transform.position, magnetRadius, _itemFilter, _itemResults);
-        for (int i = 0; i < hitCount; i++)
+        Collider2D[] itemResults = Physics2D.OverlapCircleAll(transform.position, magnetRadius, itemLayer);
+        for (int i = 0; i < itemResults.Length; i++)
         {
-            if (_itemResults[i].TryGetComponent(out ExpItem item))
+            if (itemResults[i].TryGetComponent(out ExpItem item))
             {
-                item.SetTarget(transform); 
+                item.SetTarget(transform);
             }
         }
     }
@@ -139,18 +125,14 @@ public class PlayerController : MonoBehaviour, IFighter
 
         if (_spriteRenderer != null)
         {
-            _spriteRenderer.GetPropertyBlock(_mpb);
-            _mpb.SetFloat(FlashAmountProp, 0.4f);
-            _spriteRenderer.SetPropertyBlock(_mpb);
+            _spriteRenderer.material.SetFloat("_Amount", 0.4f);
         }
 
         await UniTask.Delay(TimeSpan.FromSeconds(flashDuration));
 
         if (_spriteRenderer != null)
         {
-            _spriteRenderer.GetPropertyBlock(_mpb);
-            _mpb.SetFloat(FlashAmountProp, 0f);
-            _spriteRenderer.SetPropertyBlock(_mpb);
+            _spriteRenderer.material.SetFloat("_Amount", 0f);
         }
 
         float remainingIFrame = invincibilityDuration - flashDuration;

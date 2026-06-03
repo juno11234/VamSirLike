@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-public struct CurrentData
+public class CurrentData
 {
     public int level;
     public float damage;

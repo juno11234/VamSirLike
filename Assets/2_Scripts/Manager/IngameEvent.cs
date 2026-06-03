@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public struct InGameEvent
+public class InGameEvent
 {
     public enum EventType
     {
