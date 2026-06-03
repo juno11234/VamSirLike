@@ -44,8 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 19ebcd385437d934fa8acf48c3d6674b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boomerangPrefab: {fileID: 669568203342354418, guid: 515f6d782e3f6bb4aa040d392df566e2, type: 3}
-  scanRadius: 12
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
+  boomerangPrefab: {fileID: 669568203342354418, guid: 515f6d782e3f6bb4aa040d392df566e2, type: 3}
+  scanRadius: 12

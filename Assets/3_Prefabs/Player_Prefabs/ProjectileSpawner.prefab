@@ -44,8 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 266d60b0a3947974d8d07fca46ec33bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 8393457607896627503, guid: 52f1074a63d929e449a9d2c4b05b4927, type: 3}
-  scanRadius: 8
   enemyLayer:
     serializedVersion: 2
     m_Bits: 64
+  projectilePrefab: {fileID: 8393457607896627503, guid: 52f1074a63d929e449a9d2c4b05b4927, type: 3}
+  scanRadius: 8
+  fireDelay: 0.1
