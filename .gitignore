@@ -6,7 +6,7 @@
 /[Ll]ogs/
 /[Mm]emoryCaptures/
 /UserSettings/
-
+/Assets/[Ii][Gg]nore/
 # Visual Studio/Rider 관련 파일 제외
 .vs/
 *.csproj
