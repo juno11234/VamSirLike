@@ -21,15 +21,15 @@ MonoBehaviour:
     attackType: 0
   - id: 1002
     name: Spider
-    hp: 30
+    hp: 18
     atk: 15
-    speed: 6
+    speed: 5
     attackType: 0
   - id: 1003
     name: Ghost
-    hp: 75
+    hp: 27
     atk: 20
-    speed: 6.5
+    speed: 5
     attackType: 0
   - id: 1004
     name: Warlock
