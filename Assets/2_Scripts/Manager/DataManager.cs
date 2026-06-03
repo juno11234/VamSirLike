@@ -1,9 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 // IDisposable을 상속받아 VContainer가 알아서 메모리를 정리하도록 돕습니다.
 public class DataManager : IDisposable
@@ -14,13 +14,16 @@ public class DataManager : IDisposable
     private readonly Dictionary<int, SkillData> _playerSkillDict = new Dictionary<int, SkillData>();
     List<SkillData> _skillList = new List<SkillData>();
 
-    public async UniTask InitializeAsync(CancellationToken ct = default)
+    public IEnumerator InitializeCoroutine()
     {
-        if (_container != null) return;
+        if (_container != null) yield break;
 
-        _container = await Addressables.LoadAssetAsync<GameDataContainer>("GameData")
-            .ToUniTask(cancellationToken: ct);
+        AsyncOperationHandle<GameDataContainer> handle =
+            Addressables.LoadAssetAsync<GameDataContainer>("GameData");
 
+        yield return handle;
+
+        _container = handle.Result;
         Initialize();
         Debug.Log("데이터 로드 완료");
     }
@@ -46,7 +49,7 @@ public class DataManager : IDisposable
 
     public PlayerStat GetPlayerStat(int id)
     {
-        if (_playerStatDict.TryGetValue(id, out var stat))
+        if (_playerStatDict.TryGetValue(id, out PlayerStat stat))
             return stat;
 
         Debug.LogError($"ID {id}에 해당하는 플레이어 스탯이 없습니다!");
@@ -55,7 +58,7 @@ public class DataManager : IDisposable
 
     public EnemyStat GetEnemyStat(int id)
     {
-        if (_enemyStatDict.TryGetValue(id, out var stat))
+        if (_enemyStatDict.TryGetValue(id, out EnemyStat stat))
             return stat;
 
         Debug.LogError($"ID {id}에 해당하는 몬스터 스탯이 없습니다!");
@@ -64,7 +67,7 @@ public class DataManager : IDisposable
 
     public SkillData GetSkillData(int id)
     {
-        if (_playerSkillDict.TryGetValue(id, out var skillData))
+        if (_playerSkillDict.TryGetValue(id, out SkillData skillData))
             return skillData;
 
         Debug.LogError($"ID {id}에 해당하는 스킬 데이터가 없습니다!");
@@ -75,7 +78,7 @@ public class DataManager : IDisposable
     {
         _skillList.Clear();
 
-        foreach (var skills in _container.SkillData)
+        foreach (SkillData skills in _container.SkillData)
         {
             if (skills.job is JobType.Warrior)
             {

@@ -1,8 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class CurrentData
 {
@@ -77,29 +78,34 @@ public class SkillManager : MonoBehaviour
 
         foreach (int skillId in startingSkillIds)
         {
-            AddOrLevelUpWeaponAsync(skillId).Forget();
+            StartCoroutine(AddOrLevelUpWeaponCoroutine(skillId));
         }
     }
 
-    // 2. 외부에서 매개변수로 Prefab을 넘겨주는 방식 대신, Addressable로 직접 로드!
-    public async UniTask AddOrLevelUpWeaponAsync(int skillId)
+    public void AddOrLevelUpWeapon(int skillId)
+    {
+        StartCoroutine(AddOrLevelUpWeaponCoroutine(skillId));
+    }
+
+    private IEnumerator AddOrLevelUpWeaponCoroutine(int skillId)
     {
         SkillData data = _dataManager.GetSkillData(skillId);
-        if (data == null) return;
+        if (data == null) yield break;
 
         // 이미 가지고 있는 무기라면 레벨업
         if (_activeWeapons.TryGetValue(skillId, out SkillBase existingWeapon))
         {
-            existingWeapon.LevelUp(data); // 레벨업 로직 호출
-            return;
+            existingWeapon.LevelUp(data);
+            yield break;
         }
 
         // 새로운 무기라면 Addressable로 프리팹 비동기 로드
-        GameObject weaponPrefab = await Addressables.InstantiateAsync(data.prefabKey, transform).ToUniTask();
+        AsyncOperationHandle<GameObject> handle =
+            Addressables.InstantiateAsync(data.prefabKey, transform);
+        yield return handle;
 
-        SkillBase newWeapon = weaponPrefab.GetComponent<SkillBase>();
+        SkillBase newWeapon = handle.Result.GetComponent<SkillBase>();
         newWeapon.Init(_combatSystem, _sender, data);
-
         _activeWeapons.Add(skillId, newWeapon);
     }
 

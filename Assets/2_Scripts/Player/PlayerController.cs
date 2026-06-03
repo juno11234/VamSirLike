@@ -1,5 +1,5 @@
 using System;
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -115,11 +115,11 @@ public class PlayerController : MonoBehaviour, IFighter
         }
         else
         {
-            HitRoutineAsync().Forget();
+            StartCoroutine(HitRoutineCoroutine());
         }
     }
 
-    private async UniTaskVoid HitRoutineAsync()
+    private IEnumerator HitRoutineCoroutine()
     {
         _isInvincible = true;
 
@@ -128,7 +128,7 @@ public class PlayerController : MonoBehaviour, IFighter
             _spriteRenderer.material.SetFloat("_Amount", 0.4f);
         }
 
-        await UniTask.Delay(TimeSpan.FromSeconds(flashDuration));
+        yield return new WaitForSeconds(flashDuration);
 
         if (_spriteRenderer != null)
         {
@@ -138,7 +138,7 @@ public class PlayerController : MonoBehaviour, IFighter
         float remainingIFrame = invincibilityDuration - flashDuration;
         if (remainingIFrame > 0)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(remainingIFrame));
+            yield return new WaitForSeconds(remainingIFrame);
         }
 
         _isInvincible = false;

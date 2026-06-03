@@ -1,5 +1,5 @@
 using System;
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour, IFighter
@@ -96,17 +96,17 @@ public class EnemyController : MonoBehaviour, IFighter
         }
         else
         {
-            HitRoutineAsync().Forget();
+            StartCoroutine(HitRoutineCoroutine());
         }
     }
 
-    private async UniTaskVoid HitRoutineAsync()
+    private IEnumerator HitRoutineCoroutine()
     {
         _spriteRenderer.material.SetFloat("_Amount", 0.4f);
 
-        await UniTask.Delay(TimeSpan.FromSeconds(flashDuration));
+        yield return new WaitForSeconds(flashDuration);
 
-        if (this == null || gameObject.activeInHierarchy == false) return;
+        if (this == null || gameObject.activeInHierarchy == false) yield break;
         ResetFlashEffect();
     }
 

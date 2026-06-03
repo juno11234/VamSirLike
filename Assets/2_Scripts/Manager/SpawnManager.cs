@@ -1,9 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using Cysharp.Threading.Tasks;
-using System.Threading;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using Random = UnityEngine.Random;
 
 [Serializable]
@@ -27,44 +27,33 @@ public class SpawnManager : MonoBehaviour
     private CombatSystem _combatSystem;
     private ExpManager _expManager;
     private DataManager _dataManager;
-    private CancellationTokenSource _cts;
-
     private Dictionary<string, GameObject> _loadedPrefabs = new Dictionary<string, GameObject>();
 
     private float _playTime;
 
-    public async UniTask InitAsync(PlayerController playerTransform, CombatSystem combatSystem,
-        ExpManager expManager, DataManager dataManager, CancellationToken ct = default)
+    public IEnumerator InitCoroutine(PlayerController player, CombatSystem combatSystem,
+        ExpManager expManager, DataManager dataManager)
     {
         _expManager = expManager;
-        _player = playerTransform;
+        _player = player;
         _combatSystem = combatSystem;
         _dataManager = dataManager;
         _playTime = 0;
-
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
 
         foreach (WaveData wave in waves)
         {
             if (_loadedPrefabs.ContainsKey(wave.prefabAddress) == false)
             {
-                try
-                {
-                    GameObject prefab = await Addressables.LoadAssetAsync<GameObject>(wave.prefabAddress)
-                        .ToUniTask(cancellationToken: _cts.Token);
-                    _loadedPrefabs[wave.prefabAddress] = prefab;
-                }
-                catch (OperationCanceledException)
-                {
-                    Debug.Log($"초기화 취소됨: {wave.prefabAddress}");
-                    return;
-                }
+                AsyncOperationHandle<GameObject> handle =
+                    Addressables.LoadAssetAsync<GameObject>(wave.prefabAddress);
+                yield return handle;
+                _loadedPrefabs[wave.prefabAddress] = handle.Result;
             }
         }
 
         foreach (WaveData wave in waves)
         {
-            SpawnLoopAsync(wave, _cts.Token).Forget();
+            StartCoroutine(SpawnLoopCoroutine(wave));
         }
     }
 
@@ -73,21 +62,20 @@ public class SpawnManager : MonoBehaviour
         _playTime += Time.deltaTime;
     }
 
-    private async UniTask SpawnLoopAsync(WaveData wave, CancellationToken token)
+    private IEnumerator SpawnLoopCoroutine(WaveData wave)
     {
-        await UniTask.WaitUntil(() => _playTime >= wave.waveStartTime, cancellationToken: token);
+        // 람다식: WaitUntil에 조건을 인라인으로 전달하기 위해 사용
+        yield return new WaitUntil(() => _playTime >= wave.waveStartTime);
 
-        while (token.IsCancellationRequested == false)
+        while (true)
         {
             if (wave.waveEndTime > 0 && _playTime > wave.waveEndTime)
             {
-                break;
+                yield break;
             }
 
             SpawnEnemy(wave);
-
-            int delayMs = Mathf.RoundToInt(wave.spawnInterval * 1000f);
-            await UniTask.Delay(delayMs, ignoreTimeScale: false, cancellationToken: token);
+            yield return new WaitForSeconds(wave.spawnInterval);
         }
     }
 
@@ -119,8 +107,7 @@ public class SpawnManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        _cts?.Cancel();
-        _cts?.Dispose();
+        StopAllCoroutines();
         foreach (KeyValuePair<string, GameObject> prefab in _loadedPrefabs)
         {
             Addressables.Release(prefab.Value);

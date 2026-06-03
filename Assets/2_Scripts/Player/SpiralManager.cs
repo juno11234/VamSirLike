@@ -1,5 +1,4 @@
-using System;
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
 
 public class SpiralManager : SkillBase
@@ -25,12 +24,12 @@ public class SpiralManager : SkillBase
         _timer += Time.deltaTime;
         if (_timer >= Cooldown)
         {
-            FireAsync().Forget();
+            StartCoroutine(FireCoroutine());
             _timer -= Cooldown;
         }
     }
 
-    private async UniTaskVoid FireAsync()
+    private IEnumerator FireCoroutine()
     {
         for (int i = 0; i < _projectileCount; i++)
         {
@@ -44,7 +43,7 @@ public class SpiralManager : SkillBase
 
             if (i < _projectileCount - 1)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(fireDelay));
+                yield return new WaitForSeconds(fireDelay);
             }
         }
     }

@@ -59,8 +59,7 @@ public class UIManager : MonoBehaviour
             _lastSeconds = currentSeconds;
             int minutes = Mathf.FloorToInt(_playTime / 60f);
 
-            // .text에 문자열을 조합해서 넣지 않고 SetText 함수를 사용.
-            timeText.SetText("{0:00}:{1:00}", minutes, currentSeconds);
+            timeText.text = $"{minutes:00}:{currentSeconds:00}";
         }
     }
 

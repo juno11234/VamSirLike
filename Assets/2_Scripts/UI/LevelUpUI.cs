@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VContainer;
@@ -74,7 +73,7 @@ public class LevelUpUI : MonoBehaviour
         }
 
         // 2. 스킬 매니저에게 해당 스킬 추가/레벨업 명령
-        _skillManager.AddOrLevelUpWeaponAsync(skillId).Forget();
+        _skillManager.AddOrLevelUpWeapon(skillId);
     }
 
     private void OnDestroy()

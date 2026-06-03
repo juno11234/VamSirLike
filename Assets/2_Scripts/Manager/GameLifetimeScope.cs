@@ -1,7 +1,5 @@
-using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
 using VContainer;
 using VContainer.Unity;
 
@@ -29,12 +27,14 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterComponent(expManager);
         builder.RegisterComponent(uiManager);
         builder.RegisterComponent(levelUpUI);
+        // GameInitializer가 StartCoroutine 호출을 위해 주입받음
+        builder.RegisterComponent(this);
 
         builder.RegisterEntryPoint<GameInitializer>();
     }
 }
 
-public class GameInitializer : IAsyncStartable
+public class GameInitializer : IStartable
 {
     private readonly DataManager _dataManager;
     private readonly SpawnManager _spawnManager;
@@ -42,11 +42,13 @@ public class GameInitializer : IAsyncStartable
     private readonly CombatSystem _combatSystem;
     private readonly ExpManager _expManager;
     private readonly UIManager _uiManager;
+    private readonly GameLifetimeScope _scope;
 
     private const int PlayerWarriorId = 3001;
 
-    public GameInitializer(DataManager dataManager, SpawnManager spawnManager, PlayerController playerController,
-        CombatSystem combatSystem, ExpManager expManager, UIManager uiManager)
+    public GameInitializer(DataManager dataManager, SpawnManager spawnManager,
+        PlayerController playerController, CombatSystem combatSystem,
+        ExpManager expManager, UIManager uiManager, GameLifetimeScope scope)
     {
         _combatSystem = combatSystem;
         _dataManager = dataManager;
@@ -54,23 +56,25 @@ public class GameInitializer : IAsyncStartable
         _playerController = playerController;
         _expManager = expManager;
         _uiManager = uiManager;
+        _scope = scope;
     }
 
-    public async UniTask StartAsync(CancellationToken cancellationToken)
+    public void Start()
     {
-        await _dataManager.InitializeAsync(cancellationToken);
+        _scope.StartCoroutine(InitCoroutine());
+    }
 
-        // VContainer가 이 예외를 감지하고 안전하게 초기화 프로세스를 중단.
-        cancellationToken.ThrowIfCancellationRequested();
+    private IEnumerator InitCoroutine()
+    {
+        yield return _dataManager.InitializeCoroutine();
 
         PlayerStat warriorStat = _dataManager.GetPlayerStat(PlayerWarriorId);
         _playerController.Initialize(warriorStat, _combatSystem, _dataManager);
-        
-        await _spawnManager.InitAsync(_playerController, _combatSystem, _expManager,_dataManager,
-            cancellationToken);
-        
+
+        yield return _spawnManager.InitCoroutine(_playerController, _combatSystem, _expManager, _dataManager);
+
         _expManager.Init();
-        
+
         Debug.Log("게임 초기화 완료");
     }
 }

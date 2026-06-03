@@ -1,11 +1,10 @@
 using System;
-using Cysharp.Threading.Tasks;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
-using VContainer;
 
 // 칼 Tilemap[tilemap_106]
 // 단검 Tilemap[tilemap_103]
@@ -38,7 +37,7 @@ public class SkillSelectButton : MonoBehaviour
             default: imageAddress = 0; break;
         }
 
-        ImageAsyncSetting(imageAddress).Forget();
+        StartCoroutine(ImageAsyncSettingCoroutine(imageAddress));
 
         if (currentSkill == null)
         {
@@ -66,7 +65,7 @@ public class SkillSelectButton : MonoBehaviour
         button.onClick.AddListener(OnClickButton);
     }
 
-    private async UniTask ImageAsyncSetting(int address)
+    private IEnumerator ImageAsyncSettingCoroutine(int address)
     {
         if (_imageHandle.IsValid())
         {
@@ -76,15 +75,15 @@ public class SkillSelectButton : MonoBehaviour
         if (address == 0)
         {
             skillImage.sprite = null;
-            return;
+            yield break;
         }
 
         _imageHandle = Addressables.LoadAssetAsync<Sprite>($"Tilemap[tilemap_{address}]");
-        Sprite image = await _imageHandle.ToUniTask();
+        yield return _imageHandle;
 
-        if (this == null || skillImage == null) return;
+        if (this == null || skillImage == null) yield break;
 
-        skillImage.sprite = image;
+        skillImage.sprite = _imageHandle.Result;
     }
 
     private void OnClickButton()
