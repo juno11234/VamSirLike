@@ -788,20 +788,20 @@ MonoBehaviour:
     waveStartTime: 0
     waveEndTime: 0
     prefabAddress: Enemy_Rat
-    spawnInterval: 0.5
-    expDropAmount: 50
+    spawnInterval: 0.01
+    expDropAmount: 10
   - id: 1002
-    waveStartTime: 30
+    waveStartTime: 10
     waveEndTime: 0
     prefabAddress: Enemy_Spider
-    spawnInterval: 0.5
-    expDropAmount: 100
+    spawnInterval: 0.01
+    expDropAmount: 20
   - id: 1003
-    waveStartTime: 60
+    waveStartTime: 15
     waveEndTime: 0
     prefabAddress: Enemy_Ghost
-    spawnInterval: 0.5
-    expDropAmount: 150
+    spawnInterval: 0.01
+    expDropAmount: 30
   spawnRadius: 15
 --- !u!4 &1392157688
 Transform:
