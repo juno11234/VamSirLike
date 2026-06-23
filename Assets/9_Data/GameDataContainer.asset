@@ -46,7 +46,7 @@ MonoBehaviour:
   PlayerStats:
   - id: 3001
     name: warrior
-    baseHp: 100
+    baseHp: 1000
     baseAtk: 10
     baseSpeed: 7
     baseCooldown: 0
