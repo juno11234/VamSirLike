@@ -22,17 +22,12 @@ public class EnemyController : MonoBehaviour, IFighter
     private float _currentHp;
     private Action<EnemyController> _onDeathCallback;
 
-    // 쉐이더 최적화를 위한 프로퍼티 블록
-    private MaterialPropertyBlock _mpb;
-    private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount");
-
     private bool _isDead = false;
 
     private void Awake()
     {
         _collider2D = GetComponent<Collider2D>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        _mpb = new MaterialPropertyBlock();
     }
 
     // 스폰 매니저가 나를 소환할 때, 필요한 정보(타겟, 스탯, 풀)를 꽂아줍니다 (의존성 주입)
@@ -104,28 +99,23 @@ public class EnemyController : MonoBehaviour, IFighter
         }
         else
         {
-            // 체력이 남았다면 피격 이펙트 재생!
             HitRoutineAsync().Forget();
         }
     }
 
     private async UniTaskVoid HitRoutineAsync()
     {
-        _spriteRenderer.GetPropertyBlock(_mpb);
-        _mpb.SetFloat(FlashAmountProp, 0.4f);
-        _spriteRenderer.SetPropertyBlock(_mpb);
+        _spriteRenderer.color = new Color(1f, 0.3f, 0.3f, 1f);
 
         await UniTask.Delay(TimeSpan.FromSeconds(flashDuration));
 
-        if (this == null || !gameObject.activeInHierarchy) return;
+        if (this == null || gameObject.activeInHierarchy == false) return;
         ResetFlashEffect();
     }
 
     private void ResetFlashEffect()
     {
-        _spriteRenderer.GetPropertyBlock(_mpb);
-        _mpb.SetFloat(FlashAmountProp, 0f);
-        _spriteRenderer.SetPropertyBlock(_mpb);
+        _spriteRenderer.color = Color.white;
     }
 
     public void Heal(InGameEvent healthEvent)

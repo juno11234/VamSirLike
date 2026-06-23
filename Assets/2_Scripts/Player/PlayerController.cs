@@ -35,9 +35,6 @@ public class PlayerController : MonoBehaviour, IFighter
 
     private Collider2D _collider;
     
-    private MaterialPropertyBlock _mpb;
-    private static readonly int FlashAmountProp = Shader.PropertyToID("_Amount");
-    
     private Collider2D[] _itemResults = new Collider2D[20];
     private ContactFilter2D _itemFilter;
     
@@ -52,7 +49,6 @@ public class PlayerController : MonoBehaviour, IFighter
         _moveSpeed = stat.baseSpeed;
         _isInitialized = true;
         _combatSystem = combatSystem;
-        _mpb = new MaterialPropertyBlock();
 
         _collider = GetComponent<Collider2D>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
@@ -66,13 +62,6 @@ public class PlayerController : MonoBehaviour, IFighter
         _itemFilter.useTriggers = true;
         
         OnHpChanged?.Invoke(CurrentHp, MaxHp);
-
-        if (_spriteRenderer != null)
-        {
-            _spriteRenderer.GetPropertyBlock(_mpb);
-            _mpb.SetFloat(FlashAmountProp, 0f);
-            _spriteRenderer.SetPropertyBlock(_mpb);
-        }
     }
 
     private void Awake()
@@ -137,21 +126,11 @@ public class PlayerController : MonoBehaviour, IFighter
     {
         _isInvincible = true;
 
-        if (_spriteRenderer != null)
-        {
-            _spriteRenderer.GetPropertyBlock(_mpb);
-            _mpb.SetFloat(FlashAmountProp, 0.4f);
-            _spriteRenderer.SetPropertyBlock(_mpb);
-        }
+        if (_spriteRenderer != null) _spriteRenderer.color = new Color(1f, 0.3f, 0.3f, 1f);
 
         await UniTask.Delay(TimeSpan.FromSeconds(flashDuration));
 
-        if (_spriteRenderer != null)
-        {
-            _spriteRenderer.GetPropertyBlock(_mpb);
-            _mpb.SetFloat(FlashAmountProp, 0f);
-            _spriteRenderer.SetPropertyBlock(_mpb);
-        }
+        if (_spriteRenderer != null) _spriteRenderer.color = Color.white;
 
         float remainingIFrame = invincibilityDuration - flashDuration;
         if (remainingIFrame > 0)
